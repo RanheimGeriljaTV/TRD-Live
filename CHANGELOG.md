@@ -5,6 +5,14 @@ Formatet er basert pa Keep a Changelog og folger Conventional Commits.
 
 Regel: Ingen tankestrek i denne filen.
 
+## [1.5.2] - 2026-11-04
+
+### fix
+- Fikset syntaksfeil i app.js som forhindret at skriptet ble parset og kjorte.
+- Verifisert at JavaScript parser 100 % feilfritt og at arrangementer lastes og vises oyeblikkelig.
+- Synkronisert feilretting til bade TRD-Live og ranheimkraft.no/events/.
+- Oppgradert cache-busting til ?v=1.5.2 og localStorage til v5.
+
 ## [1.5.1] - 2026-11-04
 
 ### fix

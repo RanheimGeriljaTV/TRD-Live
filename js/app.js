@@ -12,10 +12,10 @@
   const CONFIG = {
     API_ENDPOINT: 'https://trdevents.no/graphQL',
     PAGE_SIZE: 200,
-    STORAGE_CACHE_KEY: 'trd_live_events_data_v4',
-    STORAGE_DATE_KEY: 'trd_live_last_fetched_date_v4',
-    STORAGE_TIME_KEY: 'trd_live_last_fetched_timestamp_v4',
-    STORAGE_VIEW_KEY: 'trd_live_view_mode_v4'
+    STORAGE_CACHE_KEY: 'trd_live_events_data_v5',
+    STORAGE_DATE_KEY: 'trd_live_last_fetched_date_v5',
+    STORAGE_TIME_KEY: 'trd_live_last_fetched_timestamp_v5',
+    STORAGE_VIEW_KEY: 'trd_live_view_mode_v5'
   };
 
   // 2. Fallback bilder hvis et arrangement mangler bilde
@@ -758,27 +758,6 @@
       </div>
     `;
   }
-                    </button>
-
-                    <a 
-                      href="${event.ticketsURL}" 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      class="inline-flex items-center justify-center gap-1 px-2.5 py-1 rounded-lg bg-cyan-400 hover:bg-cyan-300 text-black font-extrabold text-xs tracking-wide transition shadow-sm active:scale-95">
-                      <span>Billetter</span>
-                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                      </svg>
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </article>
-          `;
-        }).join('')}
-      </div>
-    `;
-  }
 
   function attachCardEvents(container) {
     container.querySelectorAll('.btn-open-details').forEach(btn => {
@@ -933,12 +912,6 @@
               <svg class="w-3.5 h-3.5 text-cyan-400 ${state.isRouletteSpinning ? 'animate-spin' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
               </svg>
-              <span>Nytt spinn</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    `;
               <span>Nytt spinn</span>
             </button>
           </div>
