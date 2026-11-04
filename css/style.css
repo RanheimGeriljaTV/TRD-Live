@@ -1,0 +1,132 @@
+/**
+ * TRD Live - Styling for ranheimkraft.no
+ * Mork grafitt, cyan neon, glassmorphism og mobil-optimalisering.
+ * Streng regel: Ingen tankestrek i kommentarer eller tekst.
+ */
+
+/* 1. Bakgrunn og Monster */
+body {
+  background-color: #08080a;
+  color: #e4e4e7;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+.comic-halftone {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+/* 2. Anamorfisk lysstripe */
+.anamorphic-streak {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 1px;
+  width: 100%;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(6, 182, 212, 0.15) 20%, 
+    rgba(34, 211, 238, 0.85) 50%, 
+    rgba(244, 63, 94, 0.45) 75%, 
+    transparent 100%
+  );
+  filter: drop-shadow(0 0 8px #22d3ee);
+  pointer-events: none;
+}
+
+/* 3. Glassmorphism Kort */
+.glass-card {
+  background: rgba(13, 17, 26, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), 
+              border-color 0.22s ease, 
+              box-shadow 0.22s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .glass-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(34, 211, 238, 0.3);
+    box-shadow: 0 16px 36px rgba(6, 182, 212, 0.12);
+  }
+}
+
+/* 4. Rulett Showcase Kort */
+.roulette-hero-card {
+  background: linear-gradient(135deg, rgba(17, 24, 39, 0.95) 0%, rgba(13, 17, 26, 0.98) 100%);
+  border: 1px solid rgba(34, 211, 238, 0.25);
+  box-shadow: 0 0 35px rgba(6, 182, 212, 0.12), 0 20px 40px rgba(0, 0, 0, 0.6);
+  position: relative;
+  overflow: hidden;
+}
+
+.roulette-hero-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 50% 0%, rgba(34, 211, 238, 0.12) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* 5. Skjuling av rullefelt */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* 6. Rulett-animasjon */
+@keyframes spinFlicker {
+  0% { opacity: 0.2; transform: scale(0.98); filter: blur(4px); }
+  50% { opacity: 0.8; transform: scale(1.01); filter: blur(1px); }
+  100% { opacity: 1; transform: scale(1); filter: blur(0px); }
+}
+
+.roulette-spinning {
+  animation: spinFlicker 0.15s infinite alternate ease-in-out;
+}
+
+/* 7. Neon Pulse og Glow */
+.neon-glow-cyan {
+  box-shadow: 0 0 20px rgba(34, 211, 238, 0.35);
+}
+
+.neon-glow-amber {
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.35);
+}
+
+/* 8. Touch-optimalisering */
+a, button, input {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+/* 9. Bildegradient overlay */
+.card-image-gradient {
+  background: linear-gradient(180deg, rgba(8, 8, 10, 0) 30%, rgba(8, 8, 10, 0.85) 100%);
+}
+
+/* 10. Skeleton Loader */
+.skeleton-shimmer {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.03) 25%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.03) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}

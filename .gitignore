@@ -1,0 +1,18 @@
+# System & editors
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.vscode/
+.idea/
+
+# Node
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+
+# Temp & build
+*.tmp
+*.log
