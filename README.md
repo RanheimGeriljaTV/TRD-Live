@@ -19,30 +19,38 @@ TRD Live gir en lynrask, moderne og mobil-forst oversikt over hva som rorer seg 
    - Nar en ny dag har startet, gjor applikasjonen ett nytt `fetch`-kall for a oppdatere cachen automatisk.
    - Manuell oppdateringsknapp gir brukeren mulighet til a tvinge en ny henting ved behov.
 
-3. **Ranheim Kraft Design og Identitet:**
-   - Dyp grafitt-estetikk (`#08080a`), myke glassmorphism-kort (`backdrop-blur-12px`, subtile hvite linjer `border-white/10`).
-   - Neon cyan (`#00f0ff`) og varme aksenter som harmonerer med resten av ranheimkraft.no.
-   - Typografi med avantgarde overskrifter i `Syne` og krystallklar lesbarhet med `Plus Jakarta Sans`.
-   - Mobil-forst design med beroringsvennlige knapper og horisontalt skrollbare kategoripiller.
+3. **Visningsvelger (Kompakte Kort vs. Ultra-tett Liste):**
+   - **Kortvisning:** Kompakte, innholdsrike bildekort med fast bildehoyde, kraftig fremhevet spillested-badge, starttidspunkt og direkte billettknapp.
+   - **Ultra-tett listevisning:** En rad per arrangement (tid, spillested, tittel, pris og billett). Null bilder og null tomrom for lynrask skumming pa mobil.
 
-4. **Trondheims-ruletten ("Overrask meg"):**
-   - En interaktiv rulett-funksjon som velger et tilfeldig, spennende arrangement fra de kommende dagene.
+4. **Bydels- og Omradefilter:**
+   - Egen hurtigvelger for geografi i Trondheim:
+     - *Alle bydeler*
+     - *Ranheim & Ostbyen* (EXTRA Arena, Ranheim, Lademoen, Lade, Solsiden, Leangen, Charlottenlund)
+     - *Midtbyen & Sentrum* (Byscenen, Samfundet, Olavshallen, Havet, Nidarosdomen, Torvet, Spektrum)
+     - *Sorbyen & Tempe* (Lerkendal, Tempe, Sluppen, Saupstad, Heimdal, Granasen, Bymarka)
+
+5. **Kveld- og Nattelivsfilter ("Ut i kveld etter 19"):**
+   - Filtrerer automatisk bort formiddagsutstillinger og morgenkurs, og viser kun konserter, pubkvelder, quiz, standup og kamper som starter etter kl. 19:00.
+
+6. **Trondheims-ruletten ("Overrask meg"):**
+   - En interaktiv rulett-funksjon som velger et tilfeldig arrangement fra de kommende dagene.
    - Slot-machine flimmeranimasjon med synthesizert Web Audio-chime.
-   - Presentert i et eget spotlight hero-kort med glass-effekt, direkte billettlenke og mulighet for nye spinn.
+   - Spotlight hero-kort med glass-effekt, direkte billettlenke og mulighet for nye spinn.
 
-5. **Smarte Tids- og Kategori-filtre:**
+7. **Tids- og Kategori-filtre:**
    - **Tidsfilter:** "I dag / I kveld", "I helga", "Denne uka", "Alle dager" med sanntids tellere.
    - **Kategori-filter:** *Alle*, *Konsert*, *Sport*, *Kultur*, *Gratis*, *Mat & Sosialt*.
-   - **Sokefelt:** Lynrask sok pa tvers av tittel, spillested og beskrivelse.
+   - **Sokefelt:** Instant sok pa tvers av tittel, spillested og beskrivelse.
 
-6. **Kalender- og Delingsverktoy:**
+8. **Kalender- og Delingsverktoy:**
    - Ett-klikks eksport direkte til **Google Kalender**.
    - Nedlasting av standard `.ics`-kalenderfil.
    - Kopiering av direkte arrangements- eller billettlenke.
 
-7. **Robuste Feilhandtering og Frakoblet Modus:**
+9. **Robuste Feilhandtering og Frakoblet Modus:**
    - Hvis nettverket er nede eller API-et har midlertidig avbrudd, faller applikasjonen automatisk tilbake pa lagrede data eller det innebygde noed-datasettet.
-   - Ingen hvite skjermer eller krasj, kun et stilrent feil- eller varselskort.
+   - Ingen hvite skjermer eller krasj.
 
 ---
 

@@ -14,7 +14,8 @@
     PAGE_SIZE: 200,
     STORAGE_CACHE_KEY: 'trd_live_events_data_v1',
     STORAGE_DATE_KEY: 'trd_live_last_fetched_date_v1',
-    STORAGE_TIME_KEY: 'trd_live_last_fetched_timestamp_v1'
+    STORAGE_TIME_KEY: 'trd_live_last_fetched_timestamp_v1',
+    STORAGE_VIEW_KEY: 'trd_live_view_mode_v1'
   };
 
   // 2. Fallback bilder hvis et arrangement mangler bilde
@@ -32,6 +33,9 @@
     filteredEvents: [],
     timeFilter: 'today', // 'today', 'weekend', 'week', 'all'
     categoryFilter: 'all', // 'all', 'concert', 'sport', 'culture', 'free', 'social'
+    districtFilter: 'all', // 'all', 'ranheim', 'sentrum', 'sorbyen'
+    nightlifeOnly: false, // true = kun arrangementer etter kl. 19:00
+    viewMode: localStorage.getItem(CONFIG.STORAGE_VIEW_KEY) || 'cards', // 'cards' eller 'list'
     searchQuery: '',
     selectedRouletteEvent: null,
     isRouletteSpinning: false,
@@ -123,7 +127,67 @@
     return weekDays.includes(dateStr);
   }
 
-  // 6. Pris-formatering
+  // 6. Bydels-kategorisering (Ranheim & Ostbyen, Midtbyen/Sentrum, Sorbyen)
+  function getDistrict(event) {
+    const v = (event.venue || '').toLowerCase();
+    const a = (event.address || '').toLowerCase();
+    const text = `${v} ${a}`;
+
+    // 1. Ranheim & Ostbyen
+    if (
+      text.includes('ranheim') ||
+      text.includes('extra arena') ||
+      text.includes('lademoen') ||
+      text.includes('lade') ||
+      text.includes('innherredsveien') ||
+      text.includes('solsiden') ||
+      text.includes('dora') ||
+      text.includes('svartlamon') ||
+      text.includes('verkstedhallen') ||
+      text.includes('lobbyen') ||
+      text.includes('rosendal') ||
+      text.includes('brukom') ||
+      text.includes('leangen') ||
+      text.includes('rotvoll') ||
+      text.includes('charlottenlund') ||
+      text.includes('ringve') ||
+      text.includes('7040') ||
+      text.includes('7041') ||
+      text.includes('7053') ||
+      text.includes('7054')
+    ) {
+      return 'ranheim';
+    }
+
+    // 2. Sorbyen, Tempe, Heimdal & Granasen
+    if (
+      text.includes('lerkendal') ||
+      text.includes('tempe') ||
+      text.includes('sluppen') ||
+      text.includes('saupstad') ||
+      text.includes('heimdal') ||
+      text.includes('kolstad') ||
+      text.includes('tiller') ||
+      text.includes('moholt') ||
+      text.includes('risvollan') ||
+      text.includes('nardo') ||
+      text.includes('gløshaugen') ||
+      text.includes('gloshaugen') ||
+      text.includes('dragvoll') ||
+      text.includes('granåsen') ||
+      text.includes('granasen') ||
+      text.includes('bymarka') ||
+      text.includes('lian') ||
+      text.includes('skistua')
+    ) {
+      return 'sorbyen';
+    }
+
+    // 3. Midtbyen & Sentrum (og standard)
+    return 'sentrum';
+  }
+
+  // 7. Pris-formatering
   function formatPrice(event) {
     const prices = event.prices || [];
     if (!prices || prices.length === 0) {
@@ -152,7 +216,7 @@
     return { label: 'Billetter', isFree: false };
   }
 
-  // 7. Kategori-normalisering
+  // 8. Kategori-normalisering
   function getPrimaryCategory(categories) {
     if (!categories || categories.length === 0) return 'Kultur';
     const cats = categories.map(c => String(c).toUpperCase());
@@ -178,7 +242,7 @@
     }
   }
 
-  // 8. Normalisering av arrangement-objekt fra GraphQL
+  // 9. Normalisering av arrangement-objekt fra GraphQL
   function normalizeEvent(raw) {
     const title = cleanDash(raw.title_nb || raw.title || 'Uten tittel');
     const desc = cleanDash(raw.desc_nb || raw.desc || '');
@@ -199,8 +263,9 @@
     const ticketsURL = raw.ticketsURL || eventLink;
 
     const parsedDate = parseEventDate(raw);
+    const parsedStartHour = parsedDate && parsedDate.timeStr ? parseInt(parsedDate.timeStr.split(':')[0], 10) : 18;
 
-    return {
+    const eventObj = {
       id: raw.id || String(Math.random()),
       title,
       desc,
@@ -214,11 +279,15 @@
       prices: raw.prices || [],
       startDate: parsedDate ? parsedDate.dateStr : raw.startDate,
       startTime: parsedDate ? parsedDate.timeStr : (raw.startTime || '18:00'),
+      startHour: isNaN(parsedStartHour) ? 18 : parsedStartHour,
       isSoldOut: Boolean(raw.eventSoldOut)
     };
+
+    eventObj.district = getDistrict(eventObj);
+    return eventObj;
   }
 
-  // 9. Lyd-effekt for Ruletten
+  // 10. Lyd-effekt for Ruletten
   function playChime(frequency, duration = 0.08) {
     try {
       const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -239,11 +308,11 @@
       osc.start();
       osc.stop(ctx.currentTime + duration);
     } catch (e) {
-      // Ignorer lydfeil
+      // Ignorer
     }
   }
 
-  // 10. Datahenting med streng daglig caching (Maks 1 kall per kalenderdag)
+  // 11. Datahenting med streng daglig caching (Maks 1 kall per kalenderdag)
   async function loadEvents(forceRefresh = false) {
     const todayStr = getTodayDateString();
     const cachedDate = localStorage.getItem(CONFIG.STORAGE_DATE_KEY);
@@ -253,7 +322,7 @@
       try {
         const parsed = JSON.parse(cachedData);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          state.allEvents = parsed;
+          state.allEvents = parsed.map(e => ({ ...e, district: getDistrict(e) }));
           state.isCached = true;
           state.lastFetchedDate = cachedDate;
           updateCacheStatusBar(true);
@@ -262,7 +331,7 @@
           return;
         }
       } catch (err) {
-        console.warn('Kunne ikke parse cache, henter ferske data:', err);
+        console.warn('Kunne ikke parse cache:', err);
       }
     }
 
@@ -346,7 +415,7 @@
       if (cachedData) {
         try {
           const fallbackCached = JSON.parse(cachedData);
-          state.allEvents = fallbackCached;
+          state.allEvents = fallbackCached.map(e => ({ ...e, district: getDistrict(e) }));
           state.isCached = true;
           showToast('Nettverk utilgjengelig. Viser lagrede data.', 'warning');
           updateCacheStatusBar(true);
@@ -354,7 +423,7 @@
           initRoulette();
           return;
         } catch (e) {
-          // Gå til fallback
+          // Gå til noeddatasett
         }
       }
 
@@ -372,7 +441,7 @@
     }
   }
 
-  // 11. Filtrering av arrangementer
+  // 12. Filtrering av arrangementer
   function applyFilters() {
     const todayStr = getTodayDateString();
 
@@ -386,7 +455,17 @@
         if (!isThisWeek(event.startDate)) return false;
       }
 
-      // 2. Kategori-filter
+      // 2. Kveld / Natteliv filter (Etter kl. 19:00)
+      if (state.nightlifeOnly) {
+        if (event.startHour < 19) return false;
+      }
+
+      // 3. Bydels-filter
+      if (state.districtFilter !== 'all') {
+        if (event.district !== state.districtFilter) return false;
+      }
+
+      // 4. Kategori-filter
       if (state.categoryFilter !== 'all') {
         if (state.categoryFilter === 'free') {
           const priceInfo = formatPrice(event);
@@ -402,7 +481,7 @@
         }
       }
 
-      // 3. Tekst-sok
+      // 5. Tekst-sok
       if (state.searchQuery) {
         const query = state.searchQuery.toLowerCase();
         const titleMatch = event.title.toLowerCase().includes(query);
@@ -415,10 +494,10 @@
     });
 
     updateFilterBadges();
-    renderEventGrid();
+    renderEventContainer();
   }
 
-  // 12. Oppdatering av tall-merker pa filtrene
+  // 13. Oppdatering av tall-merker pa filtrene
   function updateFilterBadges() {
     const todayStr = getTodayDateString();
 
@@ -438,9 +517,9 @@
     if (badgeAll) badgeAll.textContent = countAll;
   }
 
-  // 13. Rendering av arrangement-rutenett (Ultra-kompakte kort, maksimalt fokus pa sted, null open space)
-  function renderEventGrid() {
-    const container = document.getElementById('events-grid');
+  // 14. Rendering av innhold (Kortvisning vs. Ultra-tett Listevisning)
+  function renderEventContainer() {
+    const container = document.getElementById('events-container');
     const countLabel = document.getElementById('events-count-label');
 
     if (countLabel) {
@@ -452,7 +531,7 @@
 
     if (state.filteredEvents.length === 0) {
       container.innerHTML = `
-        <div class="col-span-full py-12 px-4 text-center">
+        <div class="py-12 px-4 text-center">
           <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-zinc-900 border border-white/10 mb-3 text-zinc-400">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
@@ -460,10 +539,10 @@
           </div>
           <h3 class="text-base font-bold font-syne text-white mb-1">Ingen arrangementer funnet</h3>
           <p class="text-xs text-zinc-400 max-w-xs mx-auto mb-4">
-            Ingen treff for valgte filtre. Prov a velge "Alle dager" eller tom sokefeltet.
+            Ingen treff for valgte filtre. Prov a velge "Alle dager", skru av kveldsfilter eller tom sokefeltet.
           </p>
           <button id="btn-reset-filters" class="px-4 py-2 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 font-medium text-xs transition">
-            Tilbakestill filter
+            Nullstill alle filtere
           </button>
         </div>
       `;
@@ -473,6 +552,8 @@
         resetBtn.addEventListener('click', () => {
           state.timeFilter = 'all';
           state.categoryFilter = 'all';
+          state.districtFilter = 'all';
+          state.nightlifeOnly = false;
           state.searchQuery = '';
           const searchInput = document.getElementById('search-input');
           if (searchInput) searchInput.value = '';
@@ -483,77 +564,59 @@
       return;
     }
 
-    container.innerHTML = state.filteredEvents.map(event => {
-      const priceInfo = formatPrice(event);
-      const displayDate = formatDisplayDate(event.startDate, event.startTime);
-      const isToday = event.startDate === getTodayDateString();
+    if (state.viewMode === 'list') {
+      renderDenseListView(container);
+    } else {
+      renderCardGridView(container);
+    }
 
-      return `
-        <article class="glass-card rounded-xl overflow-hidden flex flex-col group border border-white/10 hover:border-cyan-400/50 transition duration-200" data-event-id="${event.id}">
-          <!-- Bilde-topp med badges (kompakt hoyde h-28 sm:h-32) -->
-          <div class="relative h-28 sm:h-32 w-full overflow-hidden bg-zinc-900 cursor-pointer btn-open-details" data-id="${event.id}">
-            <img 
-              src="${event.imageUrl}" 
-              alt="${event.title}" 
-              loading="lazy" 
-              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-              onerror="this.onerror=null; this.src='${getFallbackImage(event.primaryCategory)}';"
-            />
-            <div class="absolute inset-0 card-image-gradient pointer-events-none"></div>
+    attachCardEvents(container);
+  }
 
-            <!-- Dato-merke -->
-            <div class="absolute top-2 left-2 flex items-center gap-1 px-2 py-0.5 rounded backdrop-blur-md text-[10px] font-bold tracking-wide uppercase ${
-              isToday 
-                ? 'bg-cyan-400 text-black shadow-sm shadow-cyan-400/40' 
-                : 'bg-zinc-950/90 text-zinc-200 border border-white/20'
-            }">
-              ${isToday ? '<span class="w-1.5 h-1.5 rounded-full bg-black animate-pulse"></span>' : ''}
-              ${displayDate}
-            </div>
+  // 15. ULTRA-TETT LISTEVISNING (Null bilder, null tomrom, en rad per arrangement)
+  function renderDenseListView(container) {
+    const todayStr = getTodayDateString();
 
-            <!-- Kategori-merke -->
-            <div class="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-zinc-950/90 backdrop-blur-md border border-white/15 text-[9px] font-mono uppercase text-zinc-300">
-              ${event.primaryCategory}
-            </div>
+    container.innerHTML = `
+      <div class="space-y-1.5">
+        ${state.filteredEvents.map(event => {
+          const priceInfo = formatPrice(event);
+          const displayDate = formatDisplayDate(event.startDate, event.startTime);
+          const isToday = event.startDate === todayStr;
 
-            <!-- Pris-badge nede pa bildet -->
-            <div class="absolute bottom-1.5 left-2">
-              <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold ${
-                priceInfo.isFree 
-                  ? 'bg-emerald-400 text-black font-extrabold shadow-sm' 
-                  : 'bg-zinc-950/90 text-zinc-200 border border-white/15'
-              }">
-                ${priceInfo.label}
-              </span>
-            </div>
-          </div>
+          return `
+            <div class="glass-card rounded-xl px-3 py-2 flex items-center justify-between gap-3 border border-white/5 hover:border-cyan-400/40 transition group" data-event-id="${event.id}">
+              <!-- Venstre: Tidspunkt og dato -->
+              <div class="flex items-center gap-2 flex-shrink-0 min-w-[70px] sm:min-w-[110px]">
+                <span class="font-mono text-xs font-bold ${isToday ? 'text-cyan-400' : 'text-zinc-200'} whitespace-nowrap">
+                  ${event.startTime || '19:00'}
+                </span>
+                <span class="text-[10px] text-zinc-400 font-mono hidden sm:inline whitespace-nowrap">
+                  ${isToday ? 'I dag' : displayDate.split(' kl.')[0]}
+                </span>
+              </div>
 
-          <!-- Innhold med kraftig fokus pa SPILLESTED og kompakt tittel -->
-          <div class="p-2.5 sm:p-3 flex flex-col gap-1.5">
-            <!-- Fremhevet Spillested (meget synlig cyan badge med kartnal) -->
-            <div class="flex items-center gap-1.5 px-2 py-1 rounded-md bg-cyan-950/80 border border-cyan-400/40 text-cyan-200 font-extrabold text-xs truncate">
-              <svg class="w-3.5 h-3.5 text-cyan-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
-              </svg>
-              <span class="truncate uppercase tracking-wide text-[11px] font-bold">${event.venue}</span>
-            </div>
+              <!-- Midten: Fremhevet Spillested og Tittel -->
+              <div class="flex items-center gap-2 flex-1 min-w-0">
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-cyan-950/80 border border-cyan-400/40 text-cyan-200 text-[10px] font-bold uppercase tracking-wider whitespace-nowrap flex-shrink-0">
+                  <svg class="w-2.5 h-2.5 text-cyan-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+                  </svg>
+                  <span>${event.venue}</span>
+                </span>
+                <span class="font-syne font-bold text-xs sm:text-sm text-white group-hover:text-cyan-300 transition truncate cursor-pointer btn-open-details" data-id="${event.id}" title="${event.title}">
+                  ${event.title}
+                </span>
+              </div>
 
-            <!-- Tittel: Fast ren linje-clamping uten lang tekst-strekk -->
-            <h3 class="font-syne font-bold text-xs sm:text-sm text-white group-hover:text-cyan-300 transition-colors line-clamp-2 leading-snug cursor-pointer btn-open-details h-[2.5rem] flex items-center" data-id="${event.id}" title="${event.title}">
-              ${event.title}
-            </h3>
+              <!-- Hoyre: Pris, Kalender og Billetter -->
+              <div class="flex items-center gap-2 flex-shrink-0">
+                <span class="text-[11px] font-semibold ${priceInfo.isFree ? 'text-emerald-400' : 'text-zinc-400'} hidden md:inline whitespace-nowrap">
+                  ${priceInfo.label}
+                </span>
 
-            <!-- Bunnrad med knapper (snug, rett under tittelen) -->
-            <div class="pt-1.5 border-t border-white/5 flex items-center justify-between gap-1">
-              <button 
-                class="btn-open-details text-[11px] text-zinc-400 hover:text-white flex items-center gap-0.5 py-1 px-0.5 transition" 
-                data-id="${event.id}">
-                <span>Mer info</span>
-              </button>
-
-              <div class="flex items-center gap-1">
                 <button 
-                  class="btn-calendar-add p-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-cyan-400 border border-white/10 transition" 
+                  class="btn-calendar-add p-1 rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-cyan-400 transition" 
                   title="Legg til i Google Kalender" 
                   data-id="${event.id}">
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -561,23 +624,132 @@
                   </svg>
                 </button>
 
+                <button 
+                  class="btn-open-details px-2 py-1 rounded-lg text-zinc-400 hover:text-white text-xs transition" 
+                  data-id="${event.id}">
+                  Info
+                </button>
+
                 <a 
                   href="${event.ticketsURL}" 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  class="inline-flex items-center justify-center gap-1 px-2.5 py-1 rounded-lg bg-cyan-400 hover:bg-cyan-300 text-black font-extrabold text-xs tracking-wide transition shadow-sm active:scale-95">
-                  <span>Billetter</span>
-                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                  </svg>
+                  class="inline-flex items-center justify-center gap-1 px-2.5 py-1 rounded-lg bg-cyan-400 hover:bg-cyan-300 text-black font-extrabold text-xs whitespace-nowrap shadow-sm active:scale-95">
+                  <span>Billett</span>
                 </a>
               </div>
             </div>
-          </div>
-        </article>
-      `;
-    }).join('');
+          `;
+        }).join('')}
+      </div>
+    `;
+  }
 
+  // 16. KOMPAKT KORTVISNING (4 kolonner, fast bildehoyde, kraftig fokus pa spillested)
+  function renderCardGridView(container) {
+    const todayStr = getTodayDateString();
+
+    container.innerHTML = `
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        ${state.filteredEvents.map(event => {
+          const priceInfo = formatPrice(event);
+          const displayDate = formatDisplayDate(event.startDate, event.startTime);
+          const isToday = event.startDate === todayStr;
+
+          return `
+            <article class="glass-card rounded-xl overflow-hidden flex flex-col group border border-white/10 hover:border-cyan-400/50 transition duration-200" data-event-id="${event.id}">
+              <!-- Bilde-topp med badges (kompakt hoyde h-28 sm:h-32) -->
+              <div class="relative h-28 sm:h-32 w-full overflow-hidden bg-zinc-900 cursor-pointer btn-open-details" data-id="${event.id}">
+                <img 
+                  src="${event.imageUrl}" 
+                  alt="${event.title}" 
+                  loading="lazy" 
+                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  onerror="this.onerror=null; this.src='${getFallbackImage(event.primaryCategory)}';"
+                />
+                <div class="absolute inset-0 card-image-gradient pointer-events-none"></div>
+
+                <!-- Dato-merke -->
+                <div class="absolute top-2 left-2 flex items-center gap-1 px-2 py-0.5 rounded backdrop-blur-md text-[10px] font-bold tracking-wide uppercase ${
+                  isToday 
+                    ? 'bg-cyan-400 text-black shadow-sm shadow-cyan-400/40' 
+                    : 'bg-zinc-950/90 text-zinc-200 border border-white/20'
+                }">
+                  ${isToday ? '<span class="w-1.5 h-1.5 rounded-full bg-black animate-pulse"></span>' : ''}
+                  ${displayDate}
+                </div>
+
+                <!-- Kategori-merke -->
+                <div class="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-zinc-950/90 backdrop-blur-md border border-white/15 text-[9px] font-mono uppercase text-zinc-300">
+                  ${event.primaryCategory}
+                </div>
+
+                <!-- Pris-badge nede pa bildet -->
+                <div class="absolute bottom-1.5 left-2">
+                  <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                    priceInfo.isFree 
+                      ? 'bg-emerald-400 text-black font-extrabold shadow-sm' 
+                      : 'bg-zinc-950/90 text-zinc-200 border border-white/15'
+                  }">
+                    ${priceInfo.label}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Innhold med kraftig fokus pa SPILLESTED og kompakt tittel -->
+              <div class="p-2.5 sm:p-3 flex flex-col gap-1.5">
+                <!-- Fremhevet Spillested (meget synlig cyan badge med kartnal) -->
+                <div class="flex items-center gap-1.5 px-2 py-1 rounded-md bg-cyan-950/80 border border-cyan-400/40 text-cyan-200 font-extrabold text-xs truncate">
+                  <svg class="w-3.5 h-3.5 text-cyan-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+                  </svg>
+                  <span class="truncate uppercase tracking-wide text-[11px] font-bold">${event.venue}</span>
+                </div>
+
+                <!-- Tittel: Fast ren linje-clamping uten lang tekst-strekk -->
+                <h3 class="font-syne font-bold text-xs sm:text-sm text-white group-hover:text-cyan-300 transition-colors line-clamp-2 leading-snug cursor-pointer btn-open-details h-[2.5rem] flex items-center" data-id="${event.id}" title="${event.title}">
+                  ${event.title}
+                </h3>
+
+                <!-- Bunnrad med knapper (snug, rett under tittelen) -->
+                <div class="pt-1.5 border-t border-white/5 flex items-center justify-between gap-1">
+                  <button 
+                    class="btn-open-details text-[11px] text-zinc-400 hover:text-white flex items-center gap-0.5 py-1 px-0.5 transition" 
+                    data-id="${event.id}">
+                    <span>Mer info</span>
+                  </button>
+
+                  <div class="flex items-center gap-1">
+                    <button 
+                      class="btn-calendar-add p-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-cyan-400 border border-white/10 transition" 
+                      title="Legg til i Google Kalender" 
+                      data-id="${event.id}">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                      </svg>
+                    </button>
+
+                    <a 
+                      href="${event.ticketsURL}" 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      class="inline-flex items-center justify-center gap-1 px-2.5 py-1 rounded-lg bg-cyan-400 hover:bg-cyan-300 text-black font-extrabold text-xs tracking-wide transition shadow-sm active:scale-95">
+                      <span>Billetter</span>
+                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </article>
+          `;
+        }).join('')}
+      </div>
+    `;
+  }
+
+  function attachCardEvents(container) {
     container.querySelectorAll('.btn-open-details').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const id = e.currentTarget.getAttribute('data-id');
@@ -595,7 +767,7 @@
     });
   }
 
-  // 14. "Trondheims-ruletten" (Overrask meg)
+  // 17. "Trondheims-ruletten" (Overrask meg)
   function initRoulette() {
     if (state.allEvents.length === 0) return;
     
@@ -707,7 +879,7 @@
             </span>
           </div>
 
-          <!-- Tittel (kompakt 1-2 linjer) -->
+          <!-- Tittel -->
           <h2 class="text-base sm:text-lg font-syne font-bold text-white hover:text-cyan-300 transition-colors leading-snug line-clamp-2">
             ${event.title}
           </h2>
@@ -743,7 +915,7 @@
     }
   }
 
-  // 15. Kalender-integrasjon
+  // 18. Kalender-integrasjon
   function addToGoogleCalendar(event) {
     const title = encodeURIComponent(event.title);
     const details = encodeURIComponent(`${event.desc || ''}\n\nLenke: ${event.eventLink}\nKilde: TRD Live (ranheimkraft.no)`);
@@ -789,7 +961,7 @@
     showToast('Kalenderfil (.ics) lastet ned', 'success');
   }
 
-  // 16. Modal for arrangement-detaljer (Her vises full beskrivelse og full adresse)
+  // 19. Modal for arrangement-detaljer
   function openEventModal(event) {
     state.activeModalEvent = event;
     const modal = document.getElementById('event-modal');
@@ -920,7 +1092,7 @@
     }
   }
 
-  // 17. Statusfelt for daglig cache
+  // 20. Statusfelt for daglig cache
   function updateCacheStatusBar(ready = true, isFetching = false) {
     const label = document.getElementById('cache-status-text');
     const dot = document.getElementById('cache-status-dot');
@@ -949,31 +1121,46 @@
     }
   }
 
-  // 18. Laste-indikatorer
+  // 21. Laste-indikatorer
   function showLoadingSkeletons() {
-    const container = document.getElementById('events-grid');
+    const container = document.getElementById('events-container');
     if (!container) return;
 
-    container.innerHTML = Array.from({ length: 8 }).map(() => `
-      <div class="glass-card rounded-xl overflow-hidden flex flex-col space-y-2 p-3 animate-pulse">
-        <div class="h-28 w-full rounded-lg skeleton-shimmer"></div>
-        <div class="h-4 w-1/2 rounded skeleton-shimmer"></div>
-        <div class="h-5 w-3/4 rounded skeleton-shimmer"></div>
-        <div class="pt-1.5 border-t border-white/5 flex justify-between items-center">
-          <div class="h-3.5 w-1/4 rounded skeleton-shimmer"></div>
-          <div class="h-5 w-14 rounded skeleton-shimmer"></div>
+    if (state.viewMode === 'list') {
+      container.innerHTML = Array.from({ length: 8 }).map(() => `
+        <div class="glass-card rounded-xl px-3 py-2.5 flex items-center justify-between gap-3 animate-pulse">
+          <div class="h-4 w-16 rounded skeleton-shimmer"></div>
+          <div class="h-4 w-24 rounded skeleton-shimmer"></div>
+          <div class="h-4 w-1/3 rounded skeleton-shimmer"></div>
+          <div class="h-6 w-16 rounded skeleton-shimmer"></div>
         </div>
-      </div>
-    `).join('');
+      `).join('');
+    } else {
+      container.innerHTML = `
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          ${Array.from({ length: 8 }).map(() => `
+            <div class="glass-card rounded-xl overflow-hidden flex flex-col space-y-2 p-3 animate-pulse">
+              <div class="h-28 w-full rounded-lg skeleton-shimmer"></div>
+              <div class="h-4 w-1/2 rounded skeleton-shimmer"></div>
+              <div class="h-5 w-3/4 rounded skeleton-shimmer"></div>
+              <div class="pt-1.5 border-t border-white/5 flex justify-between items-center">
+                <div class="h-3.5 w-1/4 rounded skeleton-shimmer"></div>
+                <div class="h-5 w-14 rounded skeleton-shimmer"></div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
   }
 
-  // 19. Feilvisning
+  // 22. Feilvisning
   function renderErrorState(errorMessage) {
-    const container = document.getElementById('events-grid');
+    const container = document.getElementById('events-container');
     if (!container) return;
 
     container.innerHTML = `
-      <div class="col-span-full py-12 px-4 text-center">
+      <div class="py-12 px-4 text-center">
         <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/20 mb-3 text-rose-400">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
@@ -995,7 +1182,7 @@
     }
   }
 
-  // 20. Toast-varsel
+  // 23. Toast-varsel
   function showToast(message, type = 'info') {
     const toast = document.getElementById('toast-notification');
     if (!toast) return;
@@ -1013,8 +1200,9 @@
     }, 3000);
   }
 
-  // 21. Oppdatering av aktive knapper i filtere
+  // 24. Oppdatering av aktive knapper i filtere
   function updateActiveFilterPills() {
+    // Tidsfilter
     document.querySelectorAll('.btn-time-filter').forEach(btn => {
       const filter = btn.getAttribute('data-filter');
       if (filter === state.timeFilter) {
@@ -1026,6 +1214,7 @@
       }
     });
 
+    // Kategori-filter
     document.querySelectorAll('.btn-cat-filter').forEach(btn => {
       const cat = btn.getAttribute('data-category');
       if (cat === state.categoryFilter) {
@@ -1036,10 +1225,52 @@
         btn.classList.remove('bg-white', 'text-black', 'font-bold', 'border-white');
       }
     });
+
+    // Bydels-filter
+    document.querySelectorAll('.btn-district-filter').forEach(btn => {
+      const dist = btn.getAttribute('data-district');
+      if (dist === state.districtFilter) {
+        btn.classList.remove('bg-zinc-900/80', 'text-zinc-400', 'border-white/10');
+        btn.classList.add('bg-cyan-400', 'text-black', 'font-bold', 'border-cyan-400');
+      } else {
+        btn.classList.add('bg-zinc-900/80', 'text-zinc-400', 'border-white/10');
+        btn.classList.remove('bg-cyan-400', 'text-black', 'font-bold', 'border-cyan-400');
+      }
+    });
+
+    // Kveld / Natteliv knapp
+    const nightBtn = document.getElementById('btn-nightlife-toggle');
+    if (nightBtn) {
+      if (state.nightlifeOnly) {
+        nightBtn.classList.remove('bg-zinc-900/80', 'text-zinc-400', 'border-white/10');
+        nightBtn.classList.add('bg-amber-400', 'text-black', 'font-bold', 'border-amber-400', 'shadow-sm', 'shadow-amber-400/30');
+      } else {
+        nightBtn.classList.add('bg-zinc-900/80', 'text-zinc-400', 'border-white/10');
+        nightBtn.classList.remove('bg-amber-400', 'text-black', 'font-bold', 'border-amber-400', 'shadow-sm', 'shadow-amber-400/30');
+      }
+    }
+
+    // Visnings-knapper (Kort vs. Liste)
+    const btnCards = document.getElementById('btn-view-cards');
+    const btnList = document.getElementById('btn-view-list');
+    if (btnCards && btnList) {
+      if (state.viewMode === 'list') {
+        btnList.classList.add('bg-cyan-400', 'text-black', 'font-bold');
+        btnList.classList.remove('text-zinc-400');
+        btnCards.classList.remove('bg-cyan-400', 'text-black', 'font-bold');
+        btnCards.classList.add('text-zinc-400');
+      } else {
+        btnCards.classList.add('bg-cyan-400', 'text-black', 'font-bold');
+        btnCards.classList.remove('text-zinc-400');
+        btnList.classList.remove('bg-cyan-400', 'text-black', 'font-bold');
+        btnList.classList.add('text-zinc-400');
+      }
+    }
   }
 
-  // 22. Initialisering av hendelseslyttere
+  // 25. Initialisering av hendelseslyttere
   function initEvents() {
+    // Tidsfilter
     document.querySelectorAll('.btn-time-filter').forEach(btn => {
       btn.addEventListener('click', (e) => {
         state.timeFilter = e.currentTarget.getAttribute('data-filter');
@@ -1048,6 +1279,7 @@
       });
     });
 
+    // Kategori-filter
     document.querySelectorAll('.btn-cat-filter').forEach(btn => {
       btn.addEventListener('click', (e) => {
         state.categoryFilter = e.currentTarget.getAttribute('data-category');
@@ -1056,6 +1288,46 @@
       });
     });
 
+    // Bydels-filter
+    document.querySelectorAll('.btn-district-filter').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        state.districtFilter = e.currentTarget.getAttribute('data-district');
+        updateActiveFilterPills();
+        applyFilters();
+      });
+    });
+
+    // Kveld / Natteliv hurtigknapp
+    const nightBtn = document.getElementById('btn-nightlife-toggle');
+    if (nightBtn) {
+      nightBtn.addEventListener('click', () => {
+        state.nightlifeOnly = !state.nightlifeOnly;
+        updateActiveFilterPills();
+        applyFilters();
+      });
+    }
+
+    // Visningsvelger (Kort vs. Liste)
+    const btnCards = document.getElementById('btn-view-cards');
+    const btnList = document.getElementById('btn-view-list');
+    if (btnCards) {
+      btnCards.addEventListener('click', () => {
+        state.viewMode = 'cards';
+        try { localStorage.setItem(CONFIG.STORAGE_VIEW_KEY, 'cards'); } catch (e) {}
+        updateActiveFilterPills();
+        renderEventContainer();
+      });
+    }
+    if (btnList) {
+      btnList.addEventListener('click', () => {
+        state.viewMode = 'list';
+        try { localStorage.setItem(CONFIG.STORAGE_VIEW_KEY, 'list'); } catch (e) {}
+        updateActiveFilterPills();
+        renderEventContainer();
+      });
+    }
+
+    // Sokefelt med debouncing
     const searchInput = document.getElementById('search-input');
     const searchClear = document.getElementById('btn-clear-search');
     let searchTimeout = null;
@@ -1084,6 +1356,7 @@
       });
     }
 
+    // Overrask meg / Rulett-knapper
     const heroSurpriseBtn = document.getElementById('btn-hero-surprise');
     if (heroSurpriseBtn) {
       heroSurpriseBtn.addEventListener('click', () => {
@@ -1095,6 +1368,7 @@
       });
     }
 
+    // Manuell oppdateringsknapp for cache
     const forceRefreshBtn = document.getElementById('btn-force-refresh');
     if (forceRefreshBtn) {
       forceRefreshBtn.addEventListener('click', () => {
@@ -1102,6 +1376,7 @@
       });
     }
 
+    // Modal lukk ved klikk pa bakgrunn eller ESC
     const modal = document.getElementById('event-modal');
     if (modal) {
       modal.addEventListener('click', (e) => {
@@ -1116,7 +1391,7 @@
     });
   }
 
-  // 23. Oppstart
+  // 26. Oppstart
   document.addEventListener('DOMContentLoaded', () => {
     initEvents();
     updateActiveFilterPills();

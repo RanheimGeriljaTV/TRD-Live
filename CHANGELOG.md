@@ -5,6 +5,14 @@ Formatet er basert pa Keep a Changelog og folger Conventional Commits.
 
 Regel: Ingen tankestrek i denne filen.
 
+## [1.3.0] - 2026-11-04
+
+### feat
+- Implementert Visnings-velger (Toggle mellom Kompakte Kort og Ultra-tett Liste uten bilder).
+- Tilfoyd Bydels- og Omradefilter for Trondheim (Ranheim & Ostbyen, Midtbyen & Sentrum, Sorbyen & Tempe).
+- Lagt til hurtigknapp for "Ut i kveld (etter 19)" som automatisk sorterer bort formiddagsutstillinger og viser kveldsarrangementer.
+- Lagret brukerens foretrukne visningsmodus i localStorage for gjenbruk.
+
 ## [1.2.0] - 2026-11-04
 
 ### feat
