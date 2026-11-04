@@ -5,6 +5,21 @@ Formatet er basert pa Keep a Changelog og folger Conventional Commits.
 
 Regel: Ingen tankestrek i denne filen.
 
+## [1.5.0] - 2026-11-04
+
+### feat
+- Optimalisert hele applikasjonen for 9:16 mobilskjermer med presis pikseljustering og null skjevheter.
+- Omstrukturert den festede filterseksjonen til tre ryddige, faste linjer: Sokelinje med visningsvelger, tidsfilterchips og felles omrade-/kategorispor.
+- Gjort Trondheims-ruletten vesentlig mer kompakt pa mobil (side-om-side layout) som sparer over 120px dyrebar vertikal skjermplass.
+- Konvertert arrangementsmodalen til et moderne bunn-ark (bottom sheet) pa mobil med rounded-t-3xl og 88vh maks hoyde, tilpasset tommel-rekkevidde.
+
+### fix
+- Fikset uonsket linjebrudd i ultra-tett listevisning: Fjernet flex-wrap og lagt inn streng overflow-kontroll og shrink-0 pa tid og dato.
+- Fikset kortvisningens tittel-høyde: Erstattet flex-oppsett med dedikert title-clamp-2 container slik at line-clamp-2 fungerer konsistent uten a sprenge boksene.
+- Forhindret tekst-kollisjon mellom dato- og kategori-merke pa arrangementsbildene med max-w-65% og truncate.
+- Lagt inn touch-scroll-x med -webkit-overflow-scrolling for silkemyk rulling av piller pa iOS og Android.
+- Oppgradert cache-busting til ?v=1.5.0 og flyttet localStorage til v3 for umiddelbar oppdatering.
+
 ## [1.4.0] - 2026-11-04
 
 ### feat

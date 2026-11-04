@@ -12,10 +12,10 @@
   const CONFIG = {
     API_ENDPOINT: 'https://trdevents.no/graphQL',
     PAGE_SIZE: 200,
-    STORAGE_CACHE_KEY: 'trd_live_events_data_v2',
-    STORAGE_DATE_KEY: 'trd_live_last_fetched_date_v2',
-    STORAGE_TIME_KEY: 'trd_live_last_fetched_timestamp_v2',
-    STORAGE_VIEW_KEY: 'trd_live_view_mode_v2'
+    STORAGE_CACHE_KEY: 'trd_live_events_data_v3',
+    STORAGE_DATE_KEY: 'trd_live_last_fetched_date_v3',
+    STORAGE_TIME_KEY: 'trd_live_last_fetched_timestamp_v3',
+    STORAGE_VIEW_KEY: 'trd_live_view_mode_v3'
   };
 
   // 2. Fallback bilder hvis et arrangement mangler bilde
@@ -573,7 +573,7 @@
     attachCardEvents(container);
   }
 
-  // 15. ULTRA-TETT LISTEVISNING (Optimalisert for mobil: Ingen overlapp!)
+  // 15. ULTRA-TETT LISTEVISNING (Optimalisert for 9:16 mobilskjerm: Ingen overlapp!)
   function renderDenseListView(container) {
     const todayStr = getTodayDateString();
 
@@ -585,47 +585,47 @@
           const isToday = event.startDate === todayStr;
 
           return `
-            <div class="glass-card rounded-xl p-2.5 sm:px-3 sm:py-2 flex items-center justify-between gap-2.5 border border-white/5 hover:border-cyan-400/40 transition group" data-event-id="${event.id}">
-              <!-- Venstre og Midt-kolonne: Garanterer null overlapping med min-w-0 og to-lags hierarki -->
-              <div class="flex-1 min-w-0 flex flex-col gap-1 cursor-pointer btn-open-details" data-id="${event.id}">
-                <!-- Overste linje: Tidspunkt, Spillested, Dato og Pris -->
-                <div class="flex items-center gap-1.5 flex-wrap text-xs leading-none">
+            <div class="glass-card rounded-xl p-2 sm:px-3 sm:py-2 flex items-center justify-between gap-2 border border-white/5 hover:border-cyan-400/40 transition group" data-event-id="${event.id}">
+              <!-- Venstre kolonne: Strikt to-linjers hierarki som aldri wrapper uregelmessig -->
+              <div class="flex-1 min-w-0 flex flex-col gap-0.5 cursor-pointer btn-open-details" data-id="${event.id}">
+                <!-- Topplinje: Tid, Spillested og Dato i en streng enkel linje -->
+                <div class="flex items-center gap-1.5 text-xs leading-none overflow-hidden">
                   <!-- Tid -->
-                  <span class="font-mono text-xs font-bold ${isToday ? 'text-cyan-400' : 'text-zinc-200'} whitespace-nowrap">
+                  <span class="font-mono text-xs font-bold ${isToday ? 'text-cyan-400' : 'text-zinc-200'} shrink-0">
                     ${event.startTime || '19:00'}
                   </span>
                   
-                  <span class="text-zinc-600">•</span>
+                  <span class="text-zinc-600 text-[10px] shrink-0">•</span>
 
-                  <!-- Fremhevet Spillested (kontrollert bredde, ingen overlapping) -->
-                  <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-cyan-950/90 border border-cyan-400/40 text-cyan-200 text-[10px] font-bold uppercase tracking-wider truncate max-w-[130px] sm:max-w-[200px]">
-                    <svg class="w-2.5 h-2.5 text-cyan-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <!-- Fremhevet Spillested (kontrollert bredde, garantert truncate) -->
+                  <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-cyan-950/90 border border-cyan-400/40 text-cyan-200 text-[10px] font-bold uppercase tracking-wider truncate max-w-[115px] sm:max-w-[180px] shrink-0">
+                    <svg class="w-2.5 h-2.5 text-cyan-400 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
                     </svg>
                     <span class="truncate">${event.venue}</span>
                   </span>
 
-                  <!-- Dato -->
-                  <span class="text-[10px] font-mono text-zinc-400 whitespace-nowrap">
+                  <!-- Dato (skjules eller forkortes hvis trangt) -->
+                  <span class="text-[10px] font-mono text-zinc-400 truncate shrink-0">
                     ${isToday ? 'I dag' : displayDate.split(' kl.')[0]}
                   </span>
 
-                  <!-- Pris (vises nar det er plass) -->
-                  <span class="text-[10px] font-semibold ${priceInfo.isFree ? 'text-emerald-400' : 'text-zinc-400'} whitespace-nowrap hidden xs:inline">
+                  <!-- Pris (vises nar det er god plass) -->
+                  <span class="text-[10px] font-semibold ${priceInfo.isFree ? 'text-emerald-400' : 'text-zinc-400'} truncate hidden sm:inline">
                     ${priceInfo.label}
                   </span>
                 </div>
 
-                <!-- Nederste linje: Tittel (Full gjenværende bredde, ren avkorting uten a kollidere) -->
+                <!-- Bunnlinje: Tittel (Full gjenværende bredde, ren avkorting) -->
                 <h3 class="font-syne font-bold text-xs sm:text-sm text-white group-hover:text-cyan-300 transition truncate leading-snug" title="${event.title}">
                   ${event.title}
                 </h3>
               </div>
 
-              <!-- Hoyre handlingsknapper -->
-              <div class="flex items-center gap-1.5 flex-shrink-0">
+              <!-- Hoyre handlingsknapper: Kompakt og snorrett -->
+              <div class="flex items-center gap-1 shrink-0">
                 <button 
-                  class="btn-calendar-add p-1.5 rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-cyan-400 transition" 
+                  class="btn-calendar-add p-1 sm:p-1.5 rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-cyan-400 transition" 
                   title="Legg til i Google Kalender" 
                   data-id="${event.id}">
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -637,9 +637,9 @@
                   href="${event.ticketsURL}" 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  class="inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg bg-cyan-400 hover:bg-cyan-300 text-black font-extrabold text-xs whitespace-nowrap shadow-sm active:scale-95">
+                  class="inline-flex items-center justify-center gap-1 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg bg-cyan-400 hover:bg-cyan-300 text-black font-extrabold text-[11px] sm:text-xs whitespace-nowrap shadow-sm active:scale-95">
                   <span>Billetter</span>
-                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-2.5 h-2.5 sm:w-3 sm:h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
                   </svg>
                 </a>
@@ -656,7 +656,7 @@
     const todayStr = getTodayDateString();
 
     container.innerHTML = `
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
         ${state.filteredEvents.map(event => {
           const priceInfo = formatPrice(event);
           const displayDate = formatDisplayDate(event.startDate, event.startTime);
@@ -675,14 +675,14 @@
                 />
                 <div class="absolute inset-0 card-image-gradient pointer-events-none"></div>
 
-                <!-- Dato-merke -->
-                <div class="absolute top-2 left-2 flex items-center gap-1 px-2 py-0.5 rounded backdrop-blur-md text-[10px] font-bold tracking-wide uppercase ${
+                <!-- Dato-merke (beskyttet bredde mot overlapp) -->
+                <div class="absolute top-2 left-2 max-w-[65%] truncate flex items-center gap-1 px-2 py-0.5 rounded backdrop-blur-md text-[10px] font-bold tracking-wide uppercase ${
                   isToday 
                     ? 'bg-cyan-400 text-black shadow-sm shadow-cyan-400/40' 
                     : 'bg-zinc-950/90 text-zinc-200 border border-white/20'
                 }">
-                  ${isToday ? '<span class="w-1.5 h-1.5 rounded-full bg-black animate-pulse"></span>' : ''}
-                  ${displayDate}
+                  ${isToday ? '<span class="w-1.5 h-1.5 rounded-full bg-black animate-pulse shrink-0"></span>' : ''}
+                  <span class="truncate">${displayDate}</span>
                 </div>
 
                 <!-- Kategori-merke -->
@@ -703,22 +703,26 @@
               </div>
 
               <!-- Innhold med kraftig fokus pa SPILLESTED og kompakt tittel -->
-              <div class="p-2.5 sm:p-3 flex flex-col gap-1.5">
-                <!-- Fremhevet Spillested (meget synlig cyan badge med kartnal) -->
-                <div class="flex items-center gap-1.5 px-2 py-1 rounded-md bg-cyan-950/80 border border-cyan-400/40 text-cyan-200 font-extrabold text-xs truncate">
-                  <svg class="w-3.5 h-3.5 text-cyan-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
-                  </svg>
-                  <span class="truncate uppercase tracking-wide text-[11px] font-bold">${event.venue}</span>
+              <div class="p-2.5 sm:p-3 flex flex-col gap-1.5 flex-1 justify-between">
+                <div>
+                  <!-- Fremhevet Spillested (meget synlig cyan badge med kartnal) -->
+                  <div class="flex items-center gap-1.5 px-2 py-1 rounded-md bg-cyan-950/80 border border-cyan-400/40 text-cyan-200 font-extrabold text-xs min-w-0">
+                    <svg class="w-3.5 h-3.5 text-cyan-400 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="truncate uppercase tracking-wide text-[11px] font-bold">${event.venue}</span>
+                  </div>
+
+                  <!-- Tittel: Fast hoyde med title-clamp-2 som aldri strekker boksen -->
+                  <div class="h-9 sm:h-10 flex items-center overflow-hidden mt-1">
+                    <h3 class="font-syne font-bold text-xs sm:text-sm text-white group-hover:text-cyan-300 transition-colors title-clamp-2 leading-snug cursor-pointer btn-open-details" data-id="${event.id}" title="${event.title}">
+                      ${event.title}
+                    </h3>
+                  </div>
                 </div>
 
-                <!-- Tittel: Fast ren linje-clamping uten lang tekst-strekk -->
-                <h3 class="font-syne font-bold text-xs sm:text-sm text-white group-hover:text-cyan-300 transition-colors line-clamp-2 leading-snug cursor-pointer btn-open-details h-[2.5rem] flex items-center" data-id="${event.id}" title="${event.title}">
-                  ${event.title}
-                </h3>
-
                 <!-- Bunnrad med knapper (snug, rett under tittelen) -->
-                <div class="pt-1.5 border-t border-white/5 flex items-center justify-between gap-1">
+                <div class="pt-1.5 border-t border-white/5 flex items-center justify-between gap-1 mt-auto">
                   <button 
                     class="btn-open-details text-[11px] text-zinc-400 hover:text-white flex items-center gap-0.5 py-1 px-0.5 transition" 
                     data-id="${event.id}">
@@ -733,6 +737,27 @@
                       <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                       </svg>
+                    </button>
+
+                    <a 
+                      href="${event.ticketsURL}" 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      class="inline-flex items-center justify-center gap-1 px-2.5 py-1 rounded-lg bg-cyan-400 hover:bg-cyan-300 text-black font-extrabold text-xs tracking-wide transition shadow-sm active:scale-95">
+                      <span>Billetter</span>
+                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </article>
+          `;
+        }).join('')}
+      </div>
+    `;
+  }
                     </button>
 
                     <a 
@@ -843,9 +868,9 @@
     const displayDate = formatDisplayDate(event.startDate, event.startTime);
 
     card.innerHTML = `
-      <div class="grid grid-cols-1 sm:grid-cols-12 gap-3.5 items-center p-3.5 sm:p-4 relative z-10">
-        <!-- Bilde-kolonne -->
-        <div class="sm:col-span-4 relative rounded-xl overflow-hidden h-32 sm:h-36 bg-zinc-900 border border-white/10 shadow-lg">
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-4 p-2.5 sm:p-4 relative z-10">
+        <!-- Bilde: Kompakt side-om-side eller elegant banner -->
+        <div class="relative shrink-0 rounded-xl overflow-hidden h-24 sm:h-32 sm:w-44 bg-zinc-900 border border-white/10 shadow-lg">
           <img 
             src="${event.imageUrl}" 
             alt="${event.title}" 
@@ -854,30 +879,30 @@
           />
           <div class="absolute inset-0 card-image-gradient pointer-events-none"></div>
           
-          <div class="absolute top-2 left-2 px-2 py-0.5 rounded bg-cyan-400 text-black text-[9px] font-bold tracking-wider uppercase">
+          <div class="absolute top-1.5 left-1.5 px-2 py-0.5 rounded bg-cyan-400 text-black text-[9px] font-bold tracking-wider uppercase">
             Ruletten
           </div>
           
-          <div class="absolute bottom-2 left-2 px-1.5 py-0.5 rounded bg-zinc-950/90 backdrop-blur-md text-[10px] font-mono text-zinc-300 border border-white/10">
+          <div class="absolute bottom-1.5 left-1.5 px-1.5 py-0.5 rounded bg-zinc-950/90 backdrop-blur-md text-[9px] font-mono text-zinc-300 border border-white/10">
             ${event.primaryCategory}
           </div>
         </div>
 
-        <!-- Tekst- og handlingskolonne med hoyt fokus pa spillested -->
-        <div class="sm:col-span-8 space-y-2">
+        <!-- Tekst- og handlingskolonne -->
+        <div class="flex-1 min-w-0 space-y-1.5">
           <!-- Dato, Pris og Fremhevet Spillested -->
           <div class="flex flex-wrap items-center gap-1.5 text-xs">
             <!-- Spillested badge -->
-            <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-cyan-950/90 border border-cyan-400/50 text-cyan-200 font-extrabold text-xs">
-              <svg class="w-3.5 h-3.5 text-cyan-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-cyan-950/90 border border-cyan-400/50 text-cyan-200 font-extrabold text-xs max-w-[140px] truncate">
+              <svg class="w-3 h-3 text-cyan-400 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
               </svg>
-              <span>${event.venue}</span>
+              <span class="truncate">${event.venue}</span>
             </div>
 
-            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 font-medium text-[11px]">
-              <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
-              ${displayDate}
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 font-medium text-[10px] sm:text-[11px]">
+              <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 shrink-0"></span>
+              <span class="truncate">${displayDate}</span>
             </span>
 
             <span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${priceInfo.isFree ? 'bg-emerald-400 text-black font-extrabold' : 'bg-zinc-800 text-zinc-300'}">
@@ -886,16 +911,16 @@
           </div>
 
           <!-- Tittel -->
-          <h2 class="text-base sm:text-lg font-syne font-bold text-white hover:text-cyan-300 transition-colors leading-snug line-clamp-2">
+          <h2 class="text-sm sm:text-base font-syne font-bold text-white hover:text-cyan-300 transition-colors leading-tight title-clamp-2">
             ${event.title}
           </h2>
 
-          <div class="pt-1 flex flex-wrap items-center gap-2">
+          <div class="pt-0.5 flex items-center gap-2">
             <a 
               href="${event.ticketsURL}" 
               target="_blank" 
               rel="noopener noreferrer" 
-              class="px-3.5 py-1.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black font-extrabold text-xs tracking-wide transition shadow-sm active:scale-95 flex items-center gap-1">
+              class="px-3 py-1.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black font-extrabold text-xs tracking-wide transition shadow-sm active:scale-95 flex items-center gap-1">
               <span>Sjekk ut</span>
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
@@ -904,10 +929,16 @@
 
             <button 
               id="btn-spin-roulette-inner" 
-              class="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white font-medium text-xs border border-white/10 transition flex items-center gap-1.5 active:scale-95">
+              class="px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white font-medium text-xs border border-white/10 transition flex items-center gap-1.5 active:scale-95">
               <svg class="w-3.5 h-3.5 text-cyan-400 ${state.isRouletteSpinning ? 'animate-spin' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
               </svg>
+              <span>Nytt spinn</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
               <span>Nytt spinn</span>
             </button>
           </div>

@@ -114,12 +114,35 @@ button:active {
   transform: scale(0.97);
 }
 
-/* 9. Bildegradient overlay */
+/* 9. Mobil 9:16 Skjerm-optimaliseringer */
+.touch-scroll-x {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  overscroll-behavior-x: contain;
+}
+
+html, body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Line clamp stotte som ikke kolliderer med flex */
+.title-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+}
+
+/* 10. Bildegradient overlay */
 .card-image-gradient {
   background: linear-gradient(180deg, rgba(8, 8, 10, 0) 30%, rgba(8, 8, 10, 0.85) 100%);
 }
 
-/* 10. Skeleton Loader */
+/* 11. Skeleton Loader */
 .skeleton-shimmer {
   background: linear-gradient(90deg, rgba(255, 255, 255, 0.03) 25%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.03) 75%);
   background-size: 200% 100%;

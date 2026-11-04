@@ -52,6 +52,10 @@ TRD Live gir en lynrask, moderne og mobil-forst oversikt over hva som rorer seg 
    - Hvis nettverket er nede eller API-et har midlertidig avbrudd, faller applikasjonen automatisk tilbake pa lagrede data eller det innebygde noed-datasettet.
    - Ingen hvite skjermer eller krasj.
 
+10. **9:16 Mobil-optimalisering:**
+    - Finstilt for standard 9:16 og moderne mobilskjermer med presis pikseljustering.
+    - Silkemyk horisontal rulling (touch-scroll-x), forbedret linjekontroll (title-clamp-2) og bunn-ark-modal (bottom sheet) for tommel-rekkevidde.
+
 ---
 
 ## Prosjektstruktur
