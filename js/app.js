@@ -12,10 +12,10 @@
   const CONFIG = {
     API_ENDPOINT: 'https://trdevents.no/graphQL',
     PAGE_SIZE: 200,
-    STORAGE_CACHE_KEY: 'trd_live_events_data_v3',
-    STORAGE_DATE_KEY: 'trd_live_last_fetched_date_v3',
-    STORAGE_TIME_KEY: 'trd_live_last_fetched_timestamp_v3',
-    STORAGE_VIEW_KEY: 'trd_live_view_mode_v3'
+    STORAGE_CACHE_KEY: 'trd_live_events_data_v4',
+    STORAGE_DATE_KEY: 'trd_live_last_fetched_date_v4',
+    STORAGE_TIME_KEY: 'trd_live_last_fetched_timestamp_v4',
+    STORAGE_VIEW_KEY: 'trd_live_view_mode_v4'
   };
 
   // 2. Fallback bilder hvis et arrangement mangler bilde
@@ -586,10 +586,10 @@
 
           return `
             <div class="glass-card rounded-xl p-2 sm:px-3 sm:py-2 flex items-center justify-between gap-2 border border-white/5 hover:border-cyan-400/40 transition group" data-event-id="${event.id}">
-              <!-- Venstre kolonne: Strikt to-linjers hierarki som aldri wrapper uregelmessig -->
-              <div class="flex-1 min-w-0 flex flex-col gap-0.5 cursor-pointer btn-open-details" data-id="${event.id}">
-                <!-- Topplinje: Tid, Spillested og Dato i en streng enkel linje -->
-                <div class="flex items-center gap-1.5 text-xs leading-none overflow-hidden">
+              <!-- Venstre kolonne: Tydelig to-lags hierarki som aldri overlapper -->
+              <div class="flex-1 min-w-0 flex flex-col gap-1 cursor-pointer btn-open-details" data-id="${event.id}">
+                <!-- Topplinje: Tid, Spillested og Dato i en ren enkel linje -->
+                <div class="flex items-center gap-1.5 text-xs leading-none overflow-hidden py-0.5">
                   <!-- Tid -->
                   <span class="font-mono text-xs font-bold ${isToday ? 'text-cyan-400' : 'text-zinc-200'} shrink-0">
                     ${event.startTime || '19:00'}
@@ -598,7 +598,7 @@
                   <span class="text-zinc-600 text-[10px] shrink-0">•</span>
 
                   <!-- Fremhevet Spillested (kontrollert bredde, garantert truncate) -->
-                  <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-cyan-950/90 border border-cyan-400/40 text-cyan-200 text-[10px] font-bold uppercase tracking-wider truncate max-w-[115px] sm:max-w-[180px] shrink-0">
+                  <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-cyan-950/90 border border-cyan-400/40 text-cyan-200 text-[10px] font-bold uppercase tracking-wider truncate max-w-[100px] sm:max-w-[160px] shrink-0">
                     <svg class="w-2.5 h-2.5 text-cyan-400 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
                     </svg>
@@ -616,14 +616,14 @@
                   </span>
                 </div>
 
-                <!-- Bunnlinje: Tittel (Full gjenværende bredde, ren avkorting) -->
-                <h3 class="font-syne font-bold text-xs sm:text-sm text-white group-hover:text-cyan-300 transition truncate leading-snug" title="${event.title}">
+                <!-- Bunnlinje: Tittel (Egen full linje med blokk-avkorting) -->
+                <h3 class="font-syne font-bold text-xs sm:text-sm text-white group-hover:text-cyan-300 transition truncate leading-tight block w-full" title="${event.title}">
                   ${event.title}
                 </h3>
               </div>
 
               <!-- Hoyre handlingsknapper: Kompakt og snorrett -->
-              <div class="flex items-center gap-1 shrink-0">
+              <div class="flex items-center gap-1 shrink-0 ml-1.5">
                 <button 
                   class="btn-calendar-add p-1 sm:p-1.5 rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-cyan-400 transition" 
                   title="Legg til i Google Kalender" 

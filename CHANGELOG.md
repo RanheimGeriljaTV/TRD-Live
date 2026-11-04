@@ -5,6 +5,13 @@ Formatet er basert pa Keep a Changelog og folger Conventional Commits.
 
 Regel: Ingen tankestrek i denne filen.
 
+## [1.5.1] - 2026-11-04
+
+### fix
+- Forsterket ultra-tett listevisning med okt vertikal separasjon (gap-1, py-0.5, block truncate) og fast margin mot billettknappen, som forhindrer enhver form for overlapping pa mobil.
+- Full synkronisering mot ranheimkraft.no/events/: Fjernet gammel tekstboks som hang igjen i det andre repoet.
+- Oppgradert cache-busting til ?v=1.5.1 og localStorage til v4.
+
 ## [1.5.0] - 2026-11-04
 
 ### feat
