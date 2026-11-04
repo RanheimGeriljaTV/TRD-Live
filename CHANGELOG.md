@@ -5,6 +5,15 @@ Formatet er basert pa Keep a Changelog og folger Conventional Commits.
 
 Regel: Ingen tankestrek i denne filen.
 
+## [1.1.0] - 2026-11-04
+
+### feat
+- Flyttet tidsfiltre (I dag / I kveld, I helga, Denne uka, Alle dager) helt til toppen i en festet hurtigmeny.
+- Redesignet arrangementskortene til et ultra-kompakt format uten unodig tomrom (open spaces) i boksene.
+- Fast bildehoyde og strammere paddings for maksimal utnyttelse av skjermflaten.
+- Utvidet rutenettet til 4 kolonner pa store skjermer for hoyere innholdstetthet og mindre skrolling.
+- Gjort Trondheims-ruletten-kortet mer kompakt og integrert.
+
 ## [1.0.0] - 2026-11-04
 
 ### feat
