@@ -12,10 +12,10 @@
   const CONFIG = {
     API_ENDPOINT: 'https://trdevents.no/graphQL',
     PAGE_SIZE: 200,
-    STORAGE_CACHE_KEY: 'trd_live_events_data_v5',
-    STORAGE_DATE_KEY: 'trd_live_last_fetched_date_v5',
-    STORAGE_TIME_KEY: 'trd_live_last_fetched_timestamp_v5',
-    STORAGE_VIEW_KEY: 'trd_live_view_mode_v5'
+    STORAGE_CACHE_KEY: 'trd_live_events_data_v6',
+    STORAGE_DATE_KEY: 'trd_live_last_fetched_date_v6',
+    STORAGE_TIME_KEY: 'trd_live_last_fetched_timestamp_v6',
+    STORAGE_VIEW_KEY: 'trd_live_view_mode_v6'
   };
 
   // 2. Fallback bilder hvis et arrangement mangler bilde
@@ -1111,8 +1111,8 @@
     if (!label) return;
 
     if (isFetching) {
-      label.textContent = 'Oppdaterer...';
-      if (dot) dot.className = 'w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping';
+      label.textContent = 'Laster...';
+      if (dot) dot.className = 'w-1 h-1 rounded-full bg-amber-400 animate-ping';
       if (refreshBtn) refreshBtn.classList.add('opacity-50', 'pointer-events-none');
       return;
     }
@@ -1123,13 +1123,13 @@
     const cachedTime = localStorage.getItem(CONFIG.STORAGE_TIME_KEY) || 'i dag';
 
     if (state.isCached) {
-      label.textContent = `Cached (${cachedTime})`;
+      label.textContent = 'Cached';
       label.title = `Dagens data er lagret lokalt i nettleseren (kl. ${cachedTime}). Maks 1 API-kall per dag.`;
-      if (dot) dot.className = 'w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_#22d3ee]';
+      if (dot) dot.className = 'w-1 h-1 rounded-full bg-cyan-400 shadow-[0_0_6px_#22d3ee]';
     } else {
-      label.textContent = 'Oppdatert na';
+      label.textContent = 'Oppdatert';
       label.title = `Ferske data hentet for ${todayStr}. Neste automatiske sjekk i morgen.`;
-      if (dot) dot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400';
+      if (dot) dot.className = 'w-1 h-1 rounded-full bg-emerald-400';
     }
   }
 

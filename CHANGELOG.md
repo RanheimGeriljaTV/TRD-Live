@@ -5,6 +5,13 @@ Formatet er basert pa Keep a Changelog og folger Conventional Commits.
 
 Regel: Ingen tankestrek i denne filen.
 
+## [1.5.3] - 2026-11-04
+
+### style
+- Forenklet toppen: Fjernet den ekstra linjen med TRD Live og versjonsnummer over overskriften.
+- Plassert overskriften RANHEIM KRAFT rent og direkte ved siden av isbjorn-maskoten.
+- Gjort cached-indikatoren minimal og diskret pa hoyresiden slik at den aldri forskyver overskriften pa mobil.
+
 ## [1.5.2] - 2026-11-04
 
 ### fix
