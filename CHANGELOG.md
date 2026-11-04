@@ -5,11 +5,19 @@ Formatet er basert pa Keep a Changelog og folger Conventional Commits.
 
 Regel: Ingen tankestrek i denne filen.
 
+## [1.2.0] - 2026-11-04
+
+### feat
+- Fremhevet spillested/lokasjon kraftig med en tydelig, kontrastrik cyan badge og kartnal-ikon pa hvert arrangementskort.
+- Fjernet lange beskrivelsestekster fra rutenett-kortene for a sikre en ensartet, ultra-kompakt boks-hoyde uten ujevn strekking.
+- Full arrangementsbeskrivelse og nøyaktig gateadresse bevares tilgjengelig i den utvidede modulen ved klikk pa Mer info.
+- Redusert bildehoyde (h-28 sm:h-32) og satt fast 2-linjers tittelhoyde for a eliminere all form for tomrom.
+
 ## [1.1.0] - 2026-11-04
 
 ### feat
 - Flyttet tidsfiltre (I dag / I kveld, I helga, Denne uka, Alle dager) helt til toppen i en festet hurtigmeny.
-- Redesignet arrangementskortene til et ultra-kompakt format uten unodig tomrom (open spaces) i boksene.
+- Redesignet arrangementskortene til et kompakt format uten unodig tomrom (open spaces) i boksene.
 - Fast bildehoyde og strammere paddings for maksimal utnyttelse av skjermflaten.
 - Utvidet rutenettet til 4 kolonner pa store skjermer for hoyere innholdstetthet og mindre skrolling.
 - Gjort Trondheims-ruletten-kortet mer kompakt og integrert.

@@ -74,7 +74,7 @@
   }
 
   function formatDisplayDate(dateStr, timeStr) {
-    if (!dateStr) return 'Tidspunkt ukjent';
+    if (!dateStr) return 'Tid ukjent';
     const today = getTodayDateString();
     const tomorrow = getTodayDateString(1);
 
@@ -438,7 +438,7 @@
     if (badgeAll) badgeAll.textContent = countAll;
   }
 
-  // 13. Rendering av arrangement-rutenett (Kompakte kort, ingen open spaces)
+  // 13. Rendering av arrangement-rutenett (Ultra-kompakte kort, maksimalt fokus pa sted, null open space)
   function renderEventGrid() {
     const container = document.getElementById('events-grid');
     const countLabel = document.getElementById('events-count-label');
@@ -489,9 +489,9 @@
       const isToday = event.startDate === getTodayDateString();
 
       return `
-        <article class="glass-card rounded-2xl overflow-hidden flex flex-col group relative border border-white/10 hover:border-cyan-400/40 transition" data-event-id="${event.id}">
-          <!-- Bilde-topp med badges (kompakt hoyde h-36) -->
-          <div class="relative h-36 sm:h-40 w-full overflow-hidden bg-zinc-900 cursor-pointer btn-open-details" data-id="${event.id}">
+        <article class="glass-card rounded-xl overflow-hidden flex flex-col group border border-white/10 hover:border-cyan-400/50 transition duration-200" data-event-id="${event.id}">
+          <!-- Bilde-topp med badges (kompakt hoyde h-28 sm:h-32) -->
+          <div class="relative h-28 sm:h-32 w-full overflow-hidden bg-zinc-900 cursor-pointer btn-open-details" data-id="${event.id}">
             <img 
               src="${event.imageUrl}" 
               alt="${event.title}" 
@@ -502,65 +502,58 @@
             <div class="absolute inset-0 card-image-gradient pointer-events-none"></div>
 
             <!-- Dato-merke -->
-            <div class="absolute top-2.5 left-2.5 flex items-center gap-1 px-2 py-0.5 rounded-md backdrop-blur-md text-[10px] font-bold tracking-wide uppercase ${
+            <div class="absolute top-2 left-2 flex items-center gap-1 px-2 py-0.5 rounded backdrop-blur-md text-[10px] font-bold tracking-wide uppercase ${
               isToday 
-                ? 'bg-cyan-400 text-black shadow-md shadow-cyan-400/30' 
-                : 'bg-zinc-950/85 text-zinc-200 border border-white/15'
+                ? 'bg-cyan-400 text-black shadow-sm shadow-cyan-400/40' 
+                : 'bg-zinc-950/90 text-zinc-200 border border-white/20'
             }">
               ${isToday ? '<span class="w-1.5 h-1.5 rounded-full bg-black animate-pulse"></span>' : ''}
               ${displayDate}
             </div>
 
             <!-- Kategori-merke -->
-            <div class="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-md bg-zinc-950/85 backdrop-blur-md border border-white/10 text-[10px] font-mono uppercase text-zinc-300">
+            <div class="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-zinc-950/90 backdrop-blur-md border border-white/15 text-[9px] font-mono uppercase text-zinc-300">
               ${event.primaryCategory}
             </div>
 
-            <!-- Pris-badge -->
-            <div class="absolute bottom-2 left-2.5">
-              <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold ${
+            <!-- Pris-badge nede pa bildet -->
+            <div class="absolute bottom-1.5 left-2">
+              <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold ${
                 priceInfo.isFree 
-                  ? 'bg-emerald-500/25 text-emerald-300 border border-emerald-500/40' 
-                  : 'bg-zinc-950/80 text-zinc-300 border border-white/10'
+                  ? 'bg-emerald-400 text-black font-extrabold shadow-sm' 
+                  : 'bg-zinc-950/90 text-zinc-200 border border-white/15'
               }">
                 ${priceInfo.label}
               </span>
             </div>
           </div>
 
-          <!-- Kompakt innhold uten unodig tomrom -->
-          <div class="p-3.5 flex flex-col gap-2">
-            <!-- Spillested -->
-            <div class="flex items-center gap-1.5 text-[11px] text-cyan-400 font-medium truncate">
-              <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          <!-- Innhold med kraftig fokus pa SPILLESTED og kompakt tittel -->
+          <div class="p-2.5 sm:p-3 flex flex-col gap-1.5">
+            <!-- Fremhevet Spillested (meget synlig cyan badge med kartnal) -->
+            <div class="flex items-center gap-1.5 px-2 py-1 rounded-md bg-cyan-950/80 border border-cyan-400/40 text-cyan-200 font-extrabold text-xs truncate">
+              <svg class="w-3.5 h-3.5 text-cyan-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
               </svg>
-              <span class="truncate">${event.venue}</span>
+              <span class="truncate uppercase tracking-wide text-[11px] font-bold">${event.venue}</span>
             </div>
 
-            <!-- Tittel -->
-            <h3 class="font-syne font-bold text-sm text-white group-hover:text-cyan-300 transition-colors line-clamp-2 leading-snug cursor-pointer btn-open-details" data-id="${event.id}">
+            <!-- Tittel: Fast ren linje-clamping uten lang tekst-strekk -->
+            <h3 class="font-syne font-bold text-xs sm:text-sm text-white group-hover:text-cyan-300 transition-colors line-clamp-2 leading-snug cursor-pointer btn-open-details h-[2.5rem] flex items-center" data-id="${event.id}" title="${event.title}">
               ${event.title}
             </h3>
 
-            <!-- Beskrivelse kun hvis den finnes, kompakt 1 linje -->
-            ${event.desc ? `<p class="text-[11px] text-zinc-400 line-clamp-1 leading-tight">${event.desc}</p>` : ''}
-
-            <!-- Bunnrad med knapper (snug) -->
-            <div class="mt-1 pt-2 border-t border-white/5 flex items-center justify-between gap-1.5">
+            <!-- Bunnrad med knapper (snug, rett under tittelen) -->
+            <div class="pt-1.5 border-t border-white/5 flex items-center justify-between gap-1">
               <button 
-                class="btn-open-details text-[11px] text-zinc-400 hover:text-white flex items-center gap-1 py-1 transition" 
+                class="btn-open-details text-[11px] text-zinc-400 hover:text-white flex items-center gap-0.5 py-1 px-0.5 transition" 
                 data-id="${event.id}">
-                <span>Info</span>
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                </svg>
+                <span>Mer info</span>
               </button>
 
-              <div class="flex items-center gap-1.5">
+              <div class="flex items-center gap-1">
                 <button 
-                  class="btn-calendar-add p-1.5 rounded-lg bg-zinc-900/80 hover:bg-zinc-800 text-zinc-400 hover:text-cyan-400 border border-white/10 transition" 
+                  class="btn-calendar-add p-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-cyan-400 border border-white/10 transition" 
                   title="Legg til i Google Kalender" 
                   data-id="${event.id}">
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -572,7 +565,7 @@
                   href="${event.ticketsURL}" 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  class="inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg bg-cyan-400 hover:bg-cyan-300 text-black font-bold text-xs tracking-wide transition shadow-sm shadow-cyan-400/20 active:scale-95">
+                  class="inline-flex items-center justify-center gap-1 px-2.5 py-1 rounded-lg bg-cyan-400 hover:bg-cyan-300 text-black font-extrabold text-xs tracking-wide transition shadow-sm active:scale-95">
                   <span>Billetter</span>
                   <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
@@ -672,9 +665,9 @@
     const displayDate = formatDisplayDate(event.startDate, event.startTime);
 
     card.innerHTML = `
-      <div class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center p-4 sm:p-5 relative z-10">
+      <div class="grid grid-cols-1 sm:grid-cols-12 gap-3.5 items-center p-3.5 sm:p-4 relative z-10">
         <!-- Bilde-kolonne -->
-        <div class="sm:col-span-4 relative rounded-xl overflow-hidden h-36 sm:h-44 bg-zinc-900 border border-white/10 shadow-lg">
+        <div class="sm:col-span-4 relative rounded-xl overflow-hidden h-32 sm:h-36 bg-zinc-900 border border-white/10 shadow-lg">
           <img 
             src="${event.imageUrl}" 
             alt="${event.title}" 
@@ -683,48 +676,48 @@
           />
           <div class="absolute inset-0 card-image-gradient pointer-events-none"></div>
           
-          <div class="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-cyan-400 text-black text-[9px] font-bold tracking-wider uppercase">
+          <div class="absolute top-2 left-2 px-2 py-0.5 rounded bg-cyan-400 text-black text-[9px] font-bold tracking-wider uppercase">
             Ruletten
           </div>
           
-          <div class="absolute bottom-2 left-2 px-1.5 py-0.5 rounded bg-zinc-950/80 backdrop-blur-md text-[10px] font-mono text-zinc-300 border border-white/10">
+          <div class="absolute bottom-2 left-2 px-1.5 py-0.5 rounded bg-zinc-950/90 backdrop-blur-md text-[10px] font-mono text-zinc-300 border border-white/10">
             ${event.primaryCategory}
           </div>
         </div>
 
-        <!-- Tekst- og handlingskolonne (snug, ingen open spaces) -->
+        <!-- Tekst- og handlingskolonne med hoyt fokus pa spillested -->
         <div class="sm:col-span-8 space-y-2">
+          <!-- Dato, Pris og Fremhevet Spillested -->
           <div class="flex flex-wrap items-center gap-1.5 text-xs">
+            <!-- Spillested badge -->
+            <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-cyan-950/90 border border-cyan-400/50 text-cyan-200 font-extrabold text-xs">
+              <svg class="w-3.5 h-3.5 text-cyan-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+              </svg>
+              <span>${event.venue}</span>
+            </div>
+
             <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 font-medium text-[11px]">
               <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
               ${displayDate}
             </span>
-            <span class="inline-flex items-center gap-1 text-zinc-400 text-[11px]">
-              <svg class="w-3 h-3 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-              </svg>
-              ${event.venue}
-            </span>
-            <span class="px-1.5 py-0.5 rounded text-[10px] ${priceInfo.isFree ? 'bg-emerald-500/20 text-emerald-400' : 'bg-zinc-800 text-zinc-300'}">
+
+            <span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${priceInfo.isFree ? 'bg-emerald-400 text-black font-extrabold' : 'bg-zinc-800 text-zinc-300'}">
               ${priceInfo.label}
             </span>
           </div>
 
+          <!-- Tittel (kompakt 1-2 linjer) -->
           <h2 class="text-base sm:text-lg font-syne font-bold text-white hover:text-cyan-300 transition-colors leading-snug line-clamp-2">
             ${event.title}
           </h2>
-
-          <p class="text-xs text-zinc-400 line-clamp-1 leading-normal">
-            ${event.desc || 'Et spennende arrangement i Trondheim.'}
-          </p>
 
           <div class="pt-1 flex flex-wrap items-center gap-2">
             <a 
               href="${event.ticketsURL}" 
               target="_blank" 
               rel="noopener noreferrer" 
-              class="px-4 py-1.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black font-bold text-xs tracking-wide transition shadow-md shadow-cyan-400/25 flex items-center gap-1 active:scale-95">
+              class="px-3.5 py-1.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black font-extrabold text-xs tracking-wide transition shadow-sm active:scale-95 flex items-center gap-1">
               <span>Sjekk ut</span>
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
@@ -796,7 +789,7 @@
     showToast('Kalenderfil (.ics) lastet ned', 'success');
   }
 
-  // 16. Modal for arrangement-detaljer
+  // 16. Modal for arrangement-detaljer (Her vises full beskrivelse og full adresse)
   function openEventModal(event) {
     state.activeModalEvent = event;
     const modal = document.getElementById('event-modal');
@@ -831,7 +824,7 @@
           <span class="px-2 py-0.5 rounded-md bg-zinc-900/90 text-zinc-300 text-[10px] font-mono border border-white/10 uppercase">
             ${event.primaryCategory}
           </span>
-          <span class="px-2 py-0.5 rounded-md text-[10px] font-semibold ${priceInfo.isFree ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-zinc-900/90 text-zinc-300 border border-white/10'}">
+          <span class="px-2 py-0.5 rounded-md text-[10px] font-semibold ${priceInfo.isFree ? 'bg-emerald-400 text-black font-extrabold' : 'bg-zinc-900/90 text-zinc-300 border border-white/10'}">
             ${priceInfo.label}
           </span>
         </div>
@@ -839,18 +832,19 @@
 
       <div class="p-5 sm:p-6 space-y-4">
         <div>
-          <h2 class="text-xl sm:text-2xl font-syne font-bold text-white leading-tight mb-1.5">
-            ${event.title}
-          </h2>
-          <div class="flex items-center gap-1.5 text-xs text-cyan-400 font-medium">
-            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          <!-- Fremhevet Spillested-badge i modal -->
+          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-cyan-950 border border-cyan-400/50 text-cyan-200 font-extrabold text-xs mb-2">
+            <svg class="w-4 h-4 text-cyan-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
             </svg>
             <span>${event.venue}</span>
             <span class="text-zinc-500">•</span>
-            <span class="text-zinc-400">${event.address}</span>
+            <span class="text-zinc-300 font-normal">${event.address}</span>
           </div>
+
+          <h2 class="text-xl sm:text-2xl font-syne font-bold text-white leading-tight mb-1.5">
+            ${event.title}
+          </h2>
         </div>
 
         <div class="prose prose-invert text-zinc-300 text-xs sm:text-sm leading-relaxed max-w-none">
@@ -892,7 +886,7 @@
             href="${event.ticketsURL}" 
             target="_blank" 
             rel="noopener noreferrer" 
-            class="px-4 py-2 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black font-bold text-xs tracking-wide transition shadow-md shadow-cyan-400/25 flex items-center gap-1.5 active:scale-95">
+            class="px-4 py-2 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black font-extrabold text-xs tracking-wide transition shadow-sm active:scale-95 flex items-center gap-1.5">
             <span>Billetter / Info</span>
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
@@ -961,13 +955,13 @@
     if (!container) return;
 
     container.innerHTML = Array.from({ length: 8 }).map(() => `
-      <div class="glass-card rounded-2xl overflow-hidden flex flex-col space-y-3 p-3.5 animate-pulse">
-        <div class="h-36 w-full rounded-xl skeleton-shimmer"></div>
-        <div class="h-3.5 w-1/3 rounded skeleton-shimmer"></div>
+      <div class="glass-card rounded-xl overflow-hidden flex flex-col space-y-2 p-3 animate-pulse">
+        <div class="h-28 w-full rounded-lg skeleton-shimmer"></div>
+        <div class="h-4 w-1/2 rounded skeleton-shimmer"></div>
         <div class="h-5 w-3/4 rounded skeleton-shimmer"></div>
-        <div class="pt-2 border-t border-white/5 flex justify-between items-center">
+        <div class="pt-1.5 border-t border-white/5 flex justify-between items-center">
           <div class="h-3.5 w-1/4 rounded skeleton-shimmer"></div>
-          <div class="h-6 w-16 rounded-lg skeleton-shimmer"></div>
+          <div class="h-5 w-14 rounded skeleton-shimmer"></div>
         </div>
       </div>
     `).join('');
