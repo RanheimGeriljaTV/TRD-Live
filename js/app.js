@@ -573,7 +573,7 @@
     attachCardEvents(container);
   }
 
-  // 15. ULTRA-TETT LISTEVISNING (Null bilder, null tomrom, en rad per arrangement)
+  // 15. ULTRA-TETT LISTEVISNING (Optimalisert for mobil: Ingen overlapp!)
   function renderDenseListView(container) {
     const todayStr = getTodayDateString();
 
@@ -585,38 +585,47 @@
           const isToday = event.startDate === todayStr;
 
           return `
-            <div class="glass-card rounded-xl px-3 py-2 flex items-center justify-between gap-3 border border-white/5 hover:border-cyan-400/40 transition group" data-event-id="${event.id}">
-              <!-- Venstre: Tidspunkt og dato -->
-              <div class="flex items-center gap-2 flex-shrink-0 min-w-[70px] sm:min-w-[110px]">
-                <span class="font-mono text-xs font-bold ${isToday ? 'text-cyan-400' : 'text-zinc-200'} whitespace-nowrap">
-                  ${event.startTime || '19:00'}
-                </span>
-                <span class="text-[10px] text-zinc-400 font-mono hidden sm:inline whitespace-nowrap">
-                  ${isToday ? 'I dag' : displayDate.split(' kl.')[0]}
-                </span>
-              </div>
+            <div class="glass-card rounded-xl p-2.5 sm:px-3 sm:py-2 flex items-center justify-between gap-2.5 border border-white/5 hover:border-cyan-400/40 transition group" data-event-id="${event.id}">
+              <!-- Venstre og Midt-kolonne: Garanterer null overlapping med min-w-0 og to-lags hierarki -->
+              <div class="flex-1 min-w-0 flex flex-col gap-1 cursor-pointer btn-open-details" data-id="${event.id}">
+                <!-- Overste linje: Tidspunkt, Spillested, Dato og Pris -->
+                <div class="flex items-center gap-1.5 flex-wrap text-xs leading-none">
+                  <!-- Tid -->
+                  <span class="font-mono text-xs font-bold ${isToday ? 'text-cyan-400' : 'text-zinc-200'} whitespace-nowrap">
+                    ${event.startTime || '19:00'}
+                  </span>
+                  
+                  <span class="text-zinc-600">•</span>
 
-              <!-- Midten: Fremhevet Spillested og Tittel -->
-              <div class="flex items-center gap-2 flex-1 min-w-0">
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-cyan-950/80 border border-cyan-400/40 text-cyan-200 text-[10px] font-bold uppercase tracking-wider whitespace-nowrap flex-shrink-0">
-                  <svg class="w-2.5 h-2.5 text-cyan-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
-                  </svg>
-                  <span>${event.venue}</span>
-                </span>
-                <span class="font-syne font-bold text-xs sm:text-sm text-white group-hover:text-cyan-300 transition truncate cursor-pointer btn-open-details" data-id="${event.id}" title="${event.title}">
+                  <!-- Fremhevet Spillested (kontrollert bredde, ingen overlapping) -->
+                  <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-cyan-950/90 border border-cyan-400/40 text-cyan-200 text-[10px] font-bold uppercase tracking-wider truncate max-w-[130px] sm:max-w-[200px]">
+                    <svg class="w-2.5 h-2.5 text-cyan-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="truncate">${event.venue}</span>
+                  </span>
+
+                  <!-- Dato -->
+                  <span class="text-[10px] font-mono text-zinc-400 whitespace-nowrap">
+                    ${isToday ? 'I dag' : displayDate.split(' kl.')[0]}
+                  </span>
+
+                  <!-- Pris (vises nar det er plass) -->
+                  <span class="text-[10px] font-semibold ${priceInfo.isFree ? 'text-emerald-400' : 'text-zinc-400'} whitespace-nowrap hidden xs:inline">
+                    ${priceInfo.label}
+                  </span>
+                </div>
+
+                <!-- Nederste linje: Tittel (Full gjenværende bredde, ren avkorting uten a kollidere) -->
+                <h3 class="font-syne font-bold text-xs sm:text-sm text-white group-hover:text-cyan-300 transition truncate leading-snug" title="${event.title}">
                   ${event.title}
-                </span>
+                </h3>
               </div>
 
-              <!-- Hoyre: Pris, Kalender og Billetter -->
-              <div class="flex items-center gap-2 flex-shrink-0">
-                <span class="text-[11px] font-semibold ${priceInfo.isFree ? 'text-emerald-400' : 'text-zinc-400'} hidden md:inline whitespace-nowrap">
-                  ${priceInfo.label}
-                </span>
-
+              <!-- Hoyre handlingsknapper -->
+              <div class="flex items-center gap-1.5 flex-shrink-0">
                 <button 
-                  class="btn-calendar-add p-1 rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-cyan-400 transition" 
+                  class="btn-calendar-add p-1.5 rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-cyan-400 transition" 
                   title="Legg til i Google Kalender" 
                   data-id="${event.id}">
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -624,18 +633,15 @@
                   </svg>
                 </button>
 
-                <button 
-                  class="btn-open-details px-2 py-1 rounded-lg text-zinc-400 hover:text-white text-xs transition" 
-                  data-id="${event.id}">
-                  Info
-                </button>
-
                 <a 
                   href="${event.ticketsURL}" 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  class="inline-flex items-center justify-center gap-1 px-2.5 py-1 rounded-lg bg-cyan-400 hover:bg-cyan-300 text-black font-extrabold text-xs whitespace-nowrap shadow-sm active:scale-95">
-                  <span>Billett</span>
+                  class="inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg bg-cyan-400 hover:bg-cyan-300 text-black font-extrabold text-xs whitespace-nowrap shadow-sm active:scale-95">
+                  <span>Billetter</span>
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                  </svg>
                 </a>
               </div>
             </div>
@@ -1128,11 +1134,12 @@
 
     if (state.viewMode === 'list') {
       container.innerHTML = Array.from({ length: 8 }).map(() => `
-        <div class="glass-card rounded-xl px-3 py-2.5 flex items-center justify-between gap-3 animate-pulse">
-          <div class="h-4 w-16 rounded skeleton-shimmer"></div>
-          <div class="h-4 w-24 rounded skeleton-shimmer"></div>
-          <div class="h-4 w-1/3 rounded skeleton-shimmer"></div>
-          <div class="h-6 w-16 rounded skeleton-shimmer"></div>
+        <div class="glass-card rounded-xl p-2.5 sm:px-3 sm:py-2 flex items-center justify-between gap-3 animate-pulse">
+          <div class="flex-1 space-y-1.5">
+            <div class="h-3 w-1/3 rounded skeleton-shimmer"></div>
+            <div class="h-4 w-3/4 rounded skeleton-shimmer"></div>
+          </div>
+          <div class="h-7 w-16 rounded-lg skeleton-shimmer"></div>
         </div>
       `).join('');
     } else {

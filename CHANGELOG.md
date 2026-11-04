@@ -5,6 +5,13 @@ Formatet er basert pa Keep a Changelog og folger Conventional Commits.
 
 Regel: Ingen tankestrek i denne filen.
 
+## [1.3.1] - 2026-11-04
+
+### fix
+- Fikset tekst-kollisjon og overlapping pa mobil i ultra-tett listevisning.
+- Separert metadata (tid, spillested-badge, dato og pris) og tittel i to krystallklare lag med min-w-0 og ren truncate-stotte.
+- Lagt til flex-shrink-0 pa alle filterknapper for a hindre komprimering ved horisontal beroringsskroll pa mobil.
+
 ## [1.3.0] - 2026-11-04
 
 ### feat

@@ -78,28 +78,28 @@
         <!-- Tidsfiltere helt pa toppen -->
         <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 text-xs font-medium">
           <button 
-            class="btn-time-filter px-3 py-1.5 rounded-xl transition whitespace-nowrap flex items-center gap-1.5 text-xs" 
+            class="btn-time-filter flex-shrink-0 px-3 py-1.5 rounded-xl transition whitespace-nowrap flex items-center gap-1.5 text-xs" 
             data-filter="today">
             <span>I dag / I kveld</span>
             <span id="badge-filter-today" class="px-1.5 py-0.2 rounded text-[10px] bg-black/30 font-mono">0</span>
           </button>
 
           <button 
-            class="btn-time-filter px-3 py-1.5 rounded-xl transition whitespace-nowrap flex items-center gap-1.5 text-xs" 
+            class="btn-time-filter flex-shrink-0 px-3 py-1.5 rounded-xl transition whitespace-nowrap flex items-center gap-1.5 text-xs" 
             data-filter="weekend">
             <span>I helga</span>
             <span id="badge-filter-weekend" class="px-1.5 py-0.2 rounded text-[10px] bg-black/30 font-mono">0</span>
           </button>
 
           <button 
-            class="btn-time-filter px-3 py-1.5 rounded-xl transition whitespace-nowrap flex items-center gap-1.5 text-xs" 
+            class="btn-time-filter flex-shrink-0 px-3 py-1.5 rounded-xl transition whitespace-nowrap flex items-center gap-1.5 text-xs" 
             data-filter="week">
             <span>Denne uka</span>
             <span id="badge-filter-week" class="px-1.5 py-0.2 rounded text-[10px] bg-black/30 font-mono">0</span>
           </button>
 
           <button 
-            class="btn-time-filter px-3 py-1.5 rounded-xl transition whitespace-nowrap flex items-center gap-1.5 text-xs" 
+            class="btn-time-filter flex-shrink-0 px-3 py-1.5 rounded-xl transition whitespace-nowrap flex items-center gap-1.5 text-xs" 
             data-filter="all">
             <span>Alle dager</span>
             <span id="badge-filter-all" class="px-1.5 py-0.2 rounded text-[10px] bg-black/30 font-mono">0</span>
@@ -108,7 +108,7 @@
           <!-- Kveld / Natteliv hurtigknapp (etter 19:00) -->
           <button 
             id="btn-nightlife-toggle" 
-            class="px-2.5 py-1.5 rounded-xl border border-white/10 transition whitespace-nowrap flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white"
+            class="flex-shrink-0 px-2.5 py-1.5 rounded-xl border border-white/10 transition whitespace-nowrap flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white"
             title="Vis kun arrangementer som starter fra kl. 19:00 eller senere">
             <span>Ut i kveld (etter 19)</span>
           </button>
@@ -161,7 +161,7 @@
           <!-- Overrask meg knapp -->
           <button 
             id="btn-hero-surprise" 
-            class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-cyan-400 to-sky-400 hover:from-cyan-300 hover:to-sky-300 text-black font-extrabold font-syne text-xs tracking-wide flex items-center gap-1.5 shadow-sm shadow-cyan-400/20 transition active:scale-95 whitespace-nowrap">
+            class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-cyan-400 to-sky-400 hover:from-cyan-300 hover:to-sky-300 text-black font-extrabold font-syne text-xs tracking-wide flex items-center gap-1.5 shadow-sm shadow-cyan-400/20 transition active:scale-95 whitespace-nowrap flex-shrink-0">
             <svg class="w-3.5 h-3.5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
             </svg>
@@ -175,40 +175,40 @@
         
         <!-- Bydels-filter -->
         <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-          <span class="text-[11px] text-zinc-500 font-mono hidden md:inline">Bydel:</span>
-          <button class="btn-district-filter px-2.5 py-1 rounded-lg border transition whitespace-nowrap text-[11px]" data-district="all">
+          <span class="text-[11px] text-zinc-500 font-mono hidden md:inline flex-shrink-0">Bydel:</span>
+          <button class="btn-district-filter flex-shrink-0 px-2.5 py-1 rounded-lg border transition whitespace-nowrap text-[11px]" data-district="all">
             Alle bydeler
           </button>
-          <button class="btn-district-filter px-2.5 py-1 rounded-lg border transition whitespace-nowrap text-[11px] flex items-center gap-1" data-district="ranheim">
+          <button class="btn-district-filter flex-shrink-0 px-2.5 py-1 rounded-lg border transition whitespace-nowrap text-[11px] flex items-center gap-1" data-district="ranheim">
             <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
             <span>Ranheim & Ostbyen</span>
           </button>
-          <button class="btn-district-filter px-2.5 py-1 rounded-lg border transition whitespace-nowrap text-[11px]" data-district="sentrum">
+          <button class="btn-district-filter flex-shrink-0 px-2.5 py-1 rounded-lg border transition whitespace-nowrap text-[11px]" data-district="sentrum">
             Midtbyen & Sentrum
           </button>
-          <button class="btn-district-filter px-2.5 py-1 rounded-lg border transition whitespace-nowrap text-[11px]" data-district="sorbyen">
+          <button class="btn-district-filter flex-shrink-0 px-2.5 py-1 rounded-lg border transition whitespace-nowrap text-[11px]" data-district="sorbyen">
             Sorbyen & Tempe
           </button>
         </div>
 
         <!-- Kategori-piller -->
         <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-          <button class="btn-cat-filter px-2.5 py-1 rounded-lg border transition whitespace-nowrap text-[11px]" data-category="all">
+          <button class="btn-cat-filter flex-shrink-0 px-2.5 py-1 rounded-lg border transition whitespace-nowrap text-[11px]" data-category="all">
             Alle
           </button>
-          <button class="btn-cat-filter px-2.5 py-1 rounded-lg border transition whitespace-nowrap text-[11px]" data-category="concert">
+          <button class="btn-cat-filter flex-shrink-0 px-2.5 py-1 rounded-lg border transition whitespace-nowrap text-[11px]" data-category="concert">
             Konsert
           </button>
-          <button class="btn-cat-filter px-2.5 py-1 rounded-lg border transition whitespace-nowrap text-[11px]" data-category="sport">
+          <button class="btn-cat-filter flex-shrink-0 px-2.5 py-1 rounded-lg border transition whitespace-nowrap text-[11px]" data-category="sport">
             Sport
           </button>
-          <button class="btn-cat-filter px-2.5 py-1 rounded-lg border transition whitespace-nowrap text-[11px]" data-category="culture">
+          <button class="btn-cat-filter flex-shrink-0 px-2.5 py-1 rounded-lg border transition whitespace-nowrap text-[11px]" data-category="culture">
             Kultur
           </button>
-          <button class="btn-cat-filter px-2.5 py-1 rounded-lg border transition whitespace-nowrap text-[11px]" data-category="free">
+          <button class="btn-cat-filter flex-shrink-0 px-2.5 py-1 rounded-lg border transition whitespace-nowrap text-[11px]" data-category="free">
             Gratis
           </button>
-          <button class="btn-cat-filter px-2.5 py-1 rounded-lg border transition whitespace-nowrap text-[11px]" data-category="social">
+          <button class="btn-cat-filter flex-shrink-0 px-2.5 py-1 rounded-lg border transition whitespace-nowrap text-[11px]" data-category="social">
             Mat & Sosialt
           </button>
         </div>
