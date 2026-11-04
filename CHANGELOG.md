@@ -5,6 +5,19 @@ Formatet er basert pa Keep a Changelog og folger Conventional Commits.
 
 Regel: Ingen tankestrek i denne filen.
 
+## [1.4.0] - 2026-11-04
+
+### feat
+- Plassert Ranheim Kraft overskriften direkte ved siden av isbjorn-maskoten (assets/logo.png og logosove.png) pa en enkelt kompakt linje.
+- Fjernet overflodig hero-seksjon for a frigjore maksimal vertikal skjermplass pa mobil.
+- Integrert cache-statusindikator og manuell oppdateringsknapp direkte i headeren.
+- Lagt til automatisk sove-effekt for isbjornen bade ved musepeker (hover) og beroring (touch pa mobil).
+
+### fix
+- Lagt til cache-busting parametere (?v=1.4.0) pa style.css, app.js og fallback-data.js for a sikre at endringer vises umiddelbart pa mobil uten a bli blokkert av nettleser-cache.
+- Lagt til Cache-Control og Pragma no-cache meta-tagger i HTML-hodet.
+- Oppgradert localStorage cache-nokler til v2 for a forhindre at eldre data henger igjen i mobilminnet.
+
 ## [1.3.1] - 2026-11-04
 
 ### fix

@@ -59,7 +59,9 @@ TRD Live gir en lynrask, moderne og mobil-forst oversikt over hva som rorer seg 
 ```text
 TRD Events/
 |-- assets/
-|   `-- polarICON.ico         # Ranheim Kraft favicon
+|   |-- polarICON.ico         # Ranheim Kraft favicon
+|   |-- logo.png              # Ranheim Kraft isbjorn maskot (vaken)
+|   `-- logosove.png          # Ranheim Kraft isbjorn maskot (sover ved hover/touch)
 |-- css/
 |   `-- style.css             # Glassmorphism, neon glow og animasjoner
 |-- js/
